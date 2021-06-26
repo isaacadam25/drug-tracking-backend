@@ -1,12 +1,15 @@
 from django.shortcuts import render
-from rest_framework import status,generics
+from rest_framework import status,generics, request
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from knox.views import LoginView as KnoxLoginView
 from django.contrib.auth import login
+# from MSD.models import MSDMedicine
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.db.models import Q
+from rest_framework.response import Response
 
 from DTS.hub_models import *
 from DTS.user_models import *
@@ -47,10 +50,14 @@ class LoggedUserProfile(generics.RetrieveAPIView):
 
 
 #############################STOCK_VIEWS############################
-class MedicineAPI(generics.ListCreateAPIView):
+
+
+class AcceptAPI(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Medicine.objects.all()
-    serializer_class=MedicineSerializer
+    queryset=Transaction.objects.all()
+    serializer_class=TransactionSerializer
+    lookup_url_kwarg = 'id'
+
 
 
 class MedicineTypeAPI(generics.ListCreateAPIView):
@@ -92,11 +99,6 @@ class UpdateSingleBatchAPI(generics.RetrieveUpdateAPIView):
 #     fields=['approval_status']
 
 
-class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class=MedicineSerializer
-    lookup_url_kwarg = 'id'
-    queryset=Medicine.objects.all()
-
 class MedicineInfoView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class=MedicineInformationSerializer
@@ -116,7 +118,7 @@ class InstituteAPI(generics.ListCreateAPIView):
 
 class DistributionAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Institute.objects.filter(~Q(name="TMDA")).filter(~Q(name="MSD"))
+    queryset=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="government"))
     serializer_class=InstituteSerializer
 
 class LocationAPI(generics.ListCreateAPIView):
@@ -128,6 +130,11 @@ class LocationAPI(generics.ListCreateAPIView):
 class TransactionAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Transaction.objects.all()
+    serializer_class=TransactionSerializer
+
+class PurchaseTransactionAPI(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Transaction.objects.filter(transaction_type__type_name='purchase')
     serializer_class=TransactionSerializer
 
 class CreateTransactionAPI(generics.CreateAPIView):
@@ -144,3 +151,21 @@ class TransactionTypeAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=TransactionType.objects.all()
     serializer_class=TransactionTypeSerializer
+
+class ViewUnacceptedTransactionListAPI(generics.ListAPIView):
+    def get(self,request,ref):
+        unaccepted=Transaction.objects.filter(location_to__reference_number=ref).filter(is_accepted=False).filter(transaction_type__type_name='sales')
+        serializer=TransactionSerializer(unaccepted,many=True)
+        return Response(serializer.data)
+
+class AcceptTransactionAPI(APIView):
+    def patch(self,request,id,format=None):
+        transaction=Transaction.objects.get(id=id)
+        transaction_type=TransactionType.objects.get(type_name='purchase')
+        transaction.is_accepted=True
+        new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=transaction.batch,quantity=transaction.quantity,location_to=transaction.location_to,location_from=transaction.location_from,is_accepted=True)
+        transaction.save()
+        new_trans.save()
+        serializer=TransactionSerializer(transaction)
+        return Response(serializer.data)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

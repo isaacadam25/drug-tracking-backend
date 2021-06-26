@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import status,generics
+from rest_framework import status,generics, request
 from Hospital.user_models import UserProfile, HospitalRoom
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from knox.views import LoginView as KnoxLoginView

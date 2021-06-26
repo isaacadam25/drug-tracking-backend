@@ -16,6 +16,7 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'MSD',
     'DTS',
     'Hospital',
     'rest_framework',
@@ -78,7 +79,7 @@ DATABASES = {
  
         'USER': env('DBUSER'),
  
-        'PASSWORD': '123Sheyla!',
+        'PASSWORD': env('PASSWORD'),
  
         'HOST': env('HOST'),
  
