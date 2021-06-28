@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.db.models import Q
 from rest_framework.response import Response
-
+import datetime
 from DTS.hub_models import *
 from DTS.user_models import *
 from DTS.stock_models import *
@@ -59,6 +59,50 @@ class AcceptAPI(generics.RetrieveUpdateAPIView):
     lookup_url_kwarg = 'id'
 
 
+class GetExpiredBatches(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Batch.objects.filter(expiry_date__lte=datetime.date.today())
+    serializer_class=BatchSerializer
+
+class GetSingleExpiredBatch(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Batch.objects.filter(expiry_date__lte=datetime.date.today())
+    serializer_class=BatchSerializer
+    lookup_url_kwarg='id'
+
+class TopApprovedMedicine(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        names=MedicineDetails.objects.values('name').distinct()
+        content=dict()
+        for name in names:
+            count=Approval.objects.filter(status=True).filter(id__medicine_detail__name=name['name']).count()
+            content[name['name']]=count
+        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(dict(sort))
+
+class TopApprovedManufacturersAPI(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
+        content=dict()
+        for manufacturer in manufacturers:
+            count=Approval.objects.filter(status=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
+            content[manufacturer['manufacturer']]=count
+        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(dict(sort))   
+
+class TopDeclinedManufacturersAPI(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
+        content=dict()
+        for manufacturer in manufacturers:
+            count=Approval.objects.filter(is_declined=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
+            content[manufacturer['manufacturer']]=count
+        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(dict(sort))   
+
 
 class MedicineTypeAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
@@ -81,14 +125,33 @@ class BatchDeclinedAPI(generics.ListAPIView):
     queryset=Approval.objects.filter(is_declined=True)
     serializer_class=BatchApprovalSerializer
 
+class SingleBatchDeclinedAPI(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Approval.objects.filter(is_declined=True)
+    serializer_class=BatchApprovalSerializer
+    lookup_url_kwarg = 'id'
+
+
 class BatchApprovedAPI(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Approval.objects.filter(status=True)
     serializer_class=BatchApprovalSerializer
 
+class SingleBatchApprovedAPI(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Approval.objects.filter(status=True)
+    serializer_class=BatchApprovalSerializer
+    lookup_url_kwarg = 'id'
+
 class UpdateSingleBatchAPI(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Approval.objects.all()
+    serializer_class=BatchApprovalSerializer
+    lookup_url_kwarg = 'id'
+
+class SingleUnapprovedBatchAPI(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Approval.objects.filter(status=False).filter(is_declined=False)
     serializer_class=BatchApprovalSerializer
     lookup_url_kwarg = 'id'
 
