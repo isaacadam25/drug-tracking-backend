@@ -3,6 +3,8 @@ from django.contrib import admin
 from Hospital.views import LoginAPI
 from DTS.views import LoginAPI as Log
 
+admin.site.site_header = 'Drug Tracking System Admin'
+admin.site.site_title = 'Admin'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
