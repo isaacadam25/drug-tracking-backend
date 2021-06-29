@@ -18,20 +18,18 @@ class MedicineSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 
-class OrderTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=OrderType
-        fields="__all__"
+# class OrderTypeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=OrderType
+#         fields="__all__"
 class OrderSerializer(serializers.ModelSerializer):
-    ordertype_name=serializers.CharField(source="order_type.name",read_only=True)
     class Meta:
         model=Order
         fields="__all__"
     
 class ItemSerializer(serializers.ModelSerializer):
-    order_supplier=serializers.CharField(source="order.supplier",read_only=True)
     order_totalquantity=serializers.CharField(source="order.total_quantity",read_only=True)
-    order_supplier=serializers.CharField(source="order.supplier",read_only=True)
+    order_destination=serializers.CharField(source="order.supplier",read_only=True)
     supplier_name=serializers.CharField(source="supplier.name",read_only=True)
     class Meta:
         model=OrderedItem

@@ -70,10 +70,20 @@ class Approval(models.Model):
     is_declined=models.BooleanField(default=False,blank=True)
     date_approved=models.DateField(null=True,blank=True)
     description=models.TextField(blank=True,null=True)
+    def status_check(self):
+        if self.is_declined:
+            return f'Declined'
+        if self.status:
+            return f'Approved'
+        return f'Unapproved'
+    def __str__(self):
+        if self.is_declined:
+            return f'{self.id.batch_number} || Declined'
+        if self.status:
+            return f'{self.id.batch_number} || Approved'
+        return f'{self.id.batch_number} || Unapproved'
 
 
-
-   
 
 # class Supplier(models.Model):
 #     name=models.CharField(max_length=30)

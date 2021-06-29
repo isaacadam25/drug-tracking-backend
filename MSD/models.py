@@ -28,28 +28,54 @@ class Medicine(models.Model):
         return f'{self.serial_number} || {self.batch}'
 
 
-##########################SALES############################################
-class OrderType(models.Model):
-    name=models.CharField(max_length=40)
-    description=models.TextField(null=True, blank=True)
-    date_added=models.DateTimeField(auto_now_add=True)
-    date_modified=models.DateTimeField(auto_now=True)
-    def __str__(self):
-        return f'{self.id} {self.name}'
+#################################SALES#####################################
+# class OrderType(models.Model):
+#     name=models.CharField(max_length=40)
+#     description=models.TextField(null=True, blank=True)
+#     date_added=models.DateTimeField(auto_now_add=True)
+#     date_modified=models.DateTimeField(auto_now=True)
+#     def __str__(self):
+#         return f'{self.id} {self.name}'
 
 class Order(models.Model):
-    reference_number=models.IntegerField()
-    total_quantity=models.IntegerField()
-    order_type=models.ForeignKey(OrderType,null=True,on_delete=models.SET_NULL)
-    order_price=models.FloatField()
-    order_date=models.DateTimeField()
-    order_status=models.CharField(max_length=3)
+    def generate_num():
+        serials=[]
+        new=list(Order.objects.values_list('reference_number'))
+        for n in new:
+            for l in n:
+                serials.append(l)
+        not_unique = True
+        while not_unique:
+            x = random.randint(10000000,99999999)
+            if x not in serials:
+                not_unique=False
+        return x
+    reference_number=models.IntegerField(blank=True,editable=False,unique=True,default=generate_num)
+    total_quantity=models.IntegerField(blank=True,null=True)
+    #order_type=models.ForeignKey(OrderType,null=True,on_delete=models.SET_NULL)
+    #order_price=models.FloatField()
+    order_date=models.DateTimeField(auto_now_add=True)
+    order_status=models.CharField(max_length=3,blank=True,default='inc')
+    destination=models.ForeignKey(Destination, on_delete=models.PROTECT)
     description=models.TextField(null=True, blank=True)
     def __str__(self):
         return f'{self.id}'
 
 class OrderedItem(models.Model):
-    medicine=models.ForeignKey(Medicine,on_delete=models.CASCADE)
+    def generate_num():
+        serials=[]
+        new=list(Order.objects.values_list('item_number'))
+        for n in new:
+            for l in n:
+                serials.append(l)
+        not_unique = True
+        while not_unique:
+            x = random.randint(10000000,99999999)
+            if x not in serials:
+                not_unique=False
+        return x
+    item_number=models.IntegerField()
+    batch=models.ForeignKey(Batch,on_delete=models.CASCADE)
     quantity=models.IntegerField()
     order=models.ForeignKey(Order, on_delete=models.CASCADE)
     description=models.TextField(null=True, blank=True)
