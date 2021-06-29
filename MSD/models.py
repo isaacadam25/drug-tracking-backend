@@ -74,7 +74,7 @@ class OrderedItem(models.Model):
             if x not in serials:
                 not_unique=False
         return x
-    item_number=models.IntegerField()
+    item_number=models.IntegerField(blank=True,unique=True,default=generate_num)
     batch=models.ForeignKey(Batch,on_delete=models.CASCADE)
     quantity=models.IntegerField()
     order=models.ForeignKey(Order, on_delete=models.CASCADE)
