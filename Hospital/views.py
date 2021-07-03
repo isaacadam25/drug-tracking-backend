@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import status,generics, request
 from Hospital.user_models import UserProfile, HospitalRoom
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView, Response
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox import views as knox_views
@@ -13,6 +14,10 @@ from .pharmacy_models import *
 from Hospital.sales_models import *
 from Hospital.hospital_models import *
 from Hospital.pharmacy_serializers import *
+from Hospital.pharmacy_models import HospitalBatch as Batch
+from DTS.hub_models import Institute
+from DTS.transaction_models import Transaction as DTStransaction, TransactionType
+from DTS.transaction_serializers import TransactionSerializer as DTSTransactionSerializer
 from Hospital.hospital_serializers import *
 from Hospital.user_serializers import UserProfileSerializer,HospitalRoomsSerializer
 from Hospital.sales_serializers import *
@@ -95,7 +100,7 @@ class PatientAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Patient.objects.all()
     serializer_class=PatientSerializer
-class AppointmentAPI(generics.ListCreateAPIView):
+class PendingAppointmentAPI(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Appointment.objects.filter(status='pending')
     serializer_class=AppointmentSerializer
@@ -119,6 +124,33 @@ class DiagnosesAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Diagnosis.objects.all()
     serializer_class=DiagnosisSerializer
+
+class Prescriptions(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.all()
+    serializer_class=PrescriptionSerializer
+
+
+class GetAppointmentPrescriptions(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request,id):
+        #appointment=Appointment.objects.filter(id=id)
+        perscription=Prescription.objects.filter(appointment=id)
+        serializer=PrescriptionSerializer(perscription,many=True)
+        return Response(serializer.data)
+
+class AppointmentAPI(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Appointment.objects.all()
+    serializer_class=AppointmentSerializer
+
+class SingleAppointmentAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Appointment.objects.all()
+    serializer_class=AppointmentSerializer
+    lookup_url_kwarg='id'
+
+
 # class MedicineDetailView(generics.RetrieveCreateDestroyAPIView):
 #     permission_classes=(IsAuthenticated,)
 #     def query_set(id):
@@ -144,12 +176,29 @@ class InvoiceAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Invoice.objects.all()
     serializer_class=InvoiceSerializer
-#class AppointmentAPI(generics.ListCreateAPIView):
-#     permission_classes = (IsAuthenticated,)
-#     queryset=Appointment.objects.all()
-#     serializer_class=AppointmentSerializer
+
 class TransactionAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Transaction.objects.all()
     serializer_class=TransactionSerializer
+
+
+
+###############################PRESCRIPITON#######################
+class AcceptPrescriptionAPI(APIView):
+    def patch(self,request,id,format=None):
+        anonymous_user=self.request.user
+        transaction_type=TransactionType.objects.get(type_name='sales')
+        hospital_actual=Institute.objects.get(name='hospital1')
+        prescription=Prescription.objects.get(id=id)
+        prescription.is_sold=True
+        new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=prescription.batch,quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
+        prescription.save()
+        new_trans.save()
+        serializer=PrescriptionSerializer(prescription)
+        return Response(serializer.data)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 

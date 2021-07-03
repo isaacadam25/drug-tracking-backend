@@ -232,3 +232,11 @@ class AcceptTransactionAPI(APIView):
         serializer=TransactionSerializer(transaction)
         return Response(serializer.data)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class getAllIncomingTransactions(APIView):
+    def get(self,request,refno):
+        hospital_actual=Institute.objects.get(reference_number=refno)
+        # transaction_type=Transaction.objects.
+        transactions=Transaction.objects.filter(location_to=hospital_actual).filter(transaction_type__type_name='sales').filter(is_accepted=False)
+        serializer=TransactionSerializer(transactions,many=True)
+        return Response(serializer.data)

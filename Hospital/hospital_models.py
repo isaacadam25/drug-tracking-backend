@@ -1,3 +1,5 @@
+from django.db.models.deletion import PROTECT
+from DTS.stock_models import Batch
 from django.db import models
 from .user_models import UserProfile as User
 import random
@@ -48,20 +50,22 @@ class Patient(models.Model):
         return f"{self.serial_number}: {self.first_name} {self.last_name}"
 
 class Appointment(models.Model):
-    patient_number=models.ForeignKey(Patient,on_delete=models.PROTECT)
+    patient=models.ForeignKey(Patient,on_delete=models.PROTECT)
     def generate_num():
         
-        serials=[]
-        new=list(Appointment.objects.values_list('appointment_number'))
-        for n in new:
-            for l in n:
-                serials.append(l)
-        not_unique = True
-        while not_unique:
-            x = f'AP{random.randint(10000000,99999999)}'
-            if x not in serials:
-                not_unique=False
+        # serials=[]
+        # new=list(Appointment.objects.values_list('appointment_number'))
+        # for n in new:
+        #     for l in n:
+        #         serials.append(l)
+        # not_unique = True
+        # while not_unique:
+        #     x = f'AP{random.randint(10000000,99999999)}'
+        #     if x not in serials:
+        #         not_unique=False
+        x = f'AP{random.randint(10000000,99999999)}'
         return x
+    doctor=models.ForeignKey(User,on_delete=models.PROTECT)
     appointment_number=models.CharField(max_length=10,blank=True,editable=False,unique=True,default=generate_num)
     status_options=(('pending','Pending'),('active','Active'),('complete','Complete'))
     status=models.CharField(max_length=10,choices = status_options,default='pending',blank=True)
@@ -70,7 +74,7 @@ class Appointment(models.Model):
     date_modified=models.DateTimeField(auto_now=True)
     description=models.TextField(null=True, blank=True)
     def __str__(self):
-        return f"{self.patient_number.first_name} {self.patient_number.last_name}"
+        return f"{self.patient.first_name} {self.patient.last_name}"
 
 
 class Labtest(models.Model):
@@ -99,7 +103,14 @@ class Diagnosis(models.Model):
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)
-           
 
+class Prescription(models.Model):
+    appointment=models.ForeignKey(Appointment,on_delete=models.CASCADE)
+    batch=models.ForeignKey(Batch,on_delete=models.PROTECT)
+    quantity=models.IntegerField()
+    is_sold=models.BooleanField(blank=True,default=False)
+    sid=models.CharField(max_length=100)
+    description=models.TextField(null=True, blank=True)
+    date_added=models.DateTimeField(auto_now_add=True)
+    date_modified=models.DateTimeField(auto_now=True)
 
-    

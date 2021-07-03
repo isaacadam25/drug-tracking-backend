@@ -12,7 +12,8 @@ class TransactionSerializer(serializers.ModelSerializer):
     source_number=serializers.CharField(source="location_from.reference_number",read_only=True)
     source_name=serializers.CharField(source="location_from.name",read_only=True)
     source_location=serializers.CharField(source="location_from.location.region",read_only=True)
-    
+    drug_name=serializers.CharField(source="batch.medicine_detail.name",read_only=True)
+    drug_manufacturer=serializers.CharField(source="batch.medicine_detail.manufacturer",read_only=True)
     class Meta:
         model=Transaction
         fields="__all__"

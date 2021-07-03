@@ -1,7 +1,9 @@
 from rest_framework import serializers
-from .pharmacy_models import Medicine,MSDZone,Batch, MedicineBrand,Supplier
+from .pharmacy_models import HospitalMedicine as Medicine,MSDZone,MedicineBrand,Supplier
 from .user_models import UserProfile as User
 from rest_framework import serializers
+from Hospital.pharmacy_models import HospitalBatch as Batch
+
 
 class MedicineBrandSerializer(serializers.ModelSerializer):
     class Meta:

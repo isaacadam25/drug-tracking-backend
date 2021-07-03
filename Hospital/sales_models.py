@@ -1,5 +1,5 @@
 from django.db import models
-from .pharmacy_models import Supplier, Medicine
+from .pharmacy_models import Supplier, HospitalMedicine as Medicine
 from .hospital_models import Patient
 
 class OrderType(models.Model):

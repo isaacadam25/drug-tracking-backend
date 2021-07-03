@@ -22,7 +22,7 @@ class MedicineBrand(models.Model):
         return f'{self.brand_name}'
     
 
-class Batch(models.Model):
+class HospitalBatch(models.Model):
     batch_number=models.IntegerField(unique=True)
     medicine_brand=models.ForeignKey(MedicineBrand,on_delete=models.PROTECT)
     measure_options=(('ml','ML'),('cp','CP'),('tb','TB'))
@@ -37,14 +37,14 @@ class Batch(models.Model):
         return f'{self.batch_number}-{self.medicine_name}'
    
 
-class Medicine(models.Model):
+class HospitalMedicine(models.Model):
     serialnumber=models.IntegerField()
     quantity=models.IntegerField()
     # def quantt(self):
     #     quantity_one=self.batch.quantity_of_measure
     #     x=self.quantity*quantity_one
     #     return x
-    batch=models.ForeignKey(Batch, on_delete=models.CASCADE)
+    batch=models.ForeignKey(HospitalBatch, on_delete=models.CASCADE)
     t_quantity=models.IntegerField()
     tq_used=models.IntegerField()
     date_added=models.DateTimeField(auto_now_add=True)
@@ -52,7 +52,6 @@ class Medicine(models.Model):
     status=models.CharField(max_length=30)
     price=models.FloatField()
     description=models.TextField(null=True, blank=True)
-    batch=models.ForeignKey(Batch, on_delete=models.CASCADE)
     msd_zone=models.ForeignKey(MSDZone, on_delete=models.CASCADE)
     def __str__(self):
         return f'{self.id}'
