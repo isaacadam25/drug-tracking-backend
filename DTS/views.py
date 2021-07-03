@@ -70,38 +70,7 @@ class GetSingleExpiredBatch(generics.RetrieveAPIView):
     serializer_class=BatchSerializer
     lookup_url_kwarg='id'
 
-class TopApprovedMedicine(APIView):
-    permission_classes=(IsAuthenticated,)
-    def get(self,request):
-        names=MedicineDetails.objects.values('name').distinct()
-        content=dict()
-        for name in names:
-            count=Approval.objects.filter(status=True).filter(id__medicine_detail__name=name['name']).count()
-            content[name['name']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))
 
-class TopApprovedManufacturersAPI(APIView):
-    permission_classes=(IsAuthenticated,)
-    def get(self,request):
-        manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
-        for manufacturer in manufacturers:
-            count=Approval.objects.filter(status=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
-
-class TopDeclinedManufacturersAPI(APIView):
-    permission_classes=(IsAuthenticated,)
-    def get(self,request):
-        manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
-        for manufacturer in manufacturers:
-            count=Approval.objects.filter(is_declined=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
 
 
 class MedicineTypeAPI(generics.ListCreateAPIView):

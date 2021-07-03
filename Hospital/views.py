@@ -189,7 +189,7 @@ class AcceptPrescriptionAPI(APIView):
     def patch(self,request,id,format=None):
         anonymous_user=self.request.user
         transaction_type=TransactionType.objects.get(type_name='sales')
-        hospital_actual=Institute.objects.get(name='hospital1')
+        hospital_actual=Institute.objects.get(name='Makulu Dispensary')
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
         new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=prescription.batch,quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)

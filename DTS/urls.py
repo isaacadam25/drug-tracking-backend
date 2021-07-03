@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .report_views import *
 
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
     path('report/manufacturers/approved',TopApprovedManufacturersAPI.as_view(),name="top-manufacturer"),
     path('report/manufacturers/declined',TopDeclinedManufacturersAPI.as_view(),name="top-manufacturer"),
     path('report/drugs/top-approved',TopApprovedMedicine.as_view(),name="top-medicine"),
+    path('report/drugs/remaining',GetRemainingMedicineHospital.as_view(),name="remain-medicine"),
     path('hub/institute/',InstituteAPI.as_view(),name="institute"),
     path('hub/destinations/',DistributionAPI.as_view(),name="institutes"),
     path('hub/location',LocationAPI.as_view(),name="location"),
