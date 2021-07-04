@@ -10,6 +10,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('apis/v1/hospital/',include('Hospital.urls')),
     path('apis/v1/msd/',include('MSD.urls')),
+    path('apis/v1/makole/',include('Makole.urls')),
+    path('apis/v1/benja/',include('Benja.urls')),
     path('apis/v1/dts/',include('DTS.urls')),
     path('apis/v1/dts/login/',Log.as_view(),name="login"),
     path('apis/v1/hospital/login/',LoginAPI.as_view(),name="login")

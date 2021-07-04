@@ -10,9 +10,24 @@ class BatchSerializer(serializers.ModelSerializer):
     #approver=serializers.CharField(source="approval.approver",read_only=True)
     approval_status=serializers.CharField(source="approval.status",read_only=True)
     type_name=serializers.CharField(source="medicine_type.type_name",read_only=True)
+    medicine_name=serializers.CharField(source="medicine_detail.name",read_only=True)
+    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer",read_only=True)
+    
     class Meta:
         model=Batch
         fields='__all__'
+
+class AcceptBatchSerializer(serializers.ModelSerializer):
+    #approver=serializers.CharField(source="approval.approver",read_only=True)
+    approval_status=serializers.CharField(source="approval.status",read_only=True)
+    type_name=serializers.CharField(source="medicine_type.type_name",read_only=True)
+    medicine_name=serializers.CharField(source="medicine_detail.name",read_only=True)
+    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer",read_only=True)
+    
+    class Meta:
+        model=Batch
+        exclude=['id','quantity_received','date_added','date_modified','medicine_detail','medicine_type']
+
 
 class BatchApprovalSerializer(serializers.ModelSerializer):
     batch_number=serializers.IntegerField(source="id.batch_number",read_only=True)

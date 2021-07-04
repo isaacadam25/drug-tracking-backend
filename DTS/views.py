@@ -194,12 +194,15 @@ class AcceptTransactionAPI(APIView):
     def patch(self,request,id,format=None):
         transaction=Transaction.objects.get(id=id)
         transaction_type=TransactionType.objects.get(type_name='purchase')
+        batch_received=Batch.objects.get(id=transaction.batch.id)
         transaction.is_accepted=True
         new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=transaction.batch,quantity=transaction.quantity,location_to=transaction.location_to,location_from=transaction.location_from,is_accepted=True)
         transaction.save()
         new_trans.save()
+        batch_serializer=AcceptBatchSerializer(batch_received)
         serializer=TransactionSerializer(transaction)
-        return Response(serializer.data)
+        content={'transaction':serializer.data , 'batch_information':batch_serializer.data}
+        return Response(content)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class getAllIncomingTransactions(APIView):

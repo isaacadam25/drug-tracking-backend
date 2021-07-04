@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import status,generics, request
-from Hospital.user_models import UserProfile, HospitalRoom
+from Benja.user_models import UserProfile, HospitalRoom
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView, Response
 from knox.views import LoginView as KnoxLoginView
@@ -11,16 +11,16 @@ from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from .pharmacy_models import *
-from Hospital.sales_models import *
-from Hospital.hospital_models import *
-from Hospital.pharmacy_serializers import *
-from Hospital.pharmacy_models import HospitalBatch as Batch
+from Benja.sales_models import *
+from Benja.hospital_models import *
+from Benja.pharmacy_serializers import *
+from Benja.pharmacy_models import BenjaBatch as Batch
 from DTS.hub_models import Institute
 from DTS.transaction_models import Transaction as DTStransaction, TransactionType
 from DTS.transaction_serializers import TransactionSerializer as DTSTransactionSerializer
-from Hospital.hospital_serializers import *
-from Hospital.user_serializers import UserProfileSerializer,HospitalRoomsSerializer
-from Hospital.sales_serializers import *
+from Benja.hospital_serializers import *
+from Benja.user_serializers import UserProfileSerializer,HospitalRoomsSerializer
+from Benja.sales_serializers import *
 # Create your views here.
 #USER APIS
 class UsersAPI(generics.ListCreateAPIView):
@@ -189,7 +189,7 @@ class AcceptPrescriptionAPI(APIView):
     def patch(self,request,id,format=None):
         anonymous_user=self.request.user
         transaction_type=TransactionType.objects.get(type_name='sales')
-        hospital_actual=Institute.objects.get(reference_number='INS70860001')
+        hospital_actual=Institute.objects.get(reference_number='INS60541124')
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
         new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=prescription.batch,quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)

@@ -16,6 +16,8 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'Benja',
+    'Makole',
     'MSD',
     'DTS',
     'Hospital',

@@ -17,6 +17,12 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model=Transaction
         fields="__all__"
+class AcceptTransactionSerializer(serializers.ModelSerializer):
+    source_name=serializers.CharField(source="location_from.name",read_only=True)
+    source_location=serializers.CharField(source="location_from.location.region",read_only=True)
+    class Meta:
+        model=Transaction
+        exclude=['id','transaction_type','batch','location_to','location_from','date_added','date_modified']
 
 class CreateTransactionSerializer(serializers.ModelSerializer):
     class Meta:
