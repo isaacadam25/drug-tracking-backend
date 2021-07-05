@@ -1,7 +1,10 @@
+from DTS.hub_models import Institute
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.views import APIView,Response
 from .serializers import *
+from DTS.stock_models import Batch,Approval
+from DTS.transaction_models import Transaction
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Create your views here.
@@ -42,3 +45,42 @@ class SingleOrderAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class=OrderSerializer
     lookup_url_kwarg='id'
     queryset=Order.objects.all()
+
+class RemainingMedicineMSD(APIView):
+    pass
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        locations=Transaction.objects.values('location_to').distinct()
+        medicine_in=Approval.objects.filter(status=True).values('id').distinct()
+        medicine_left=Transaction.objects.values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        for stock in medicine_in:
+            msd=Institute.objects.get(reference_number="INS75821246")
+            batches=Batch.objects.get(id=stock['id'])
+            quantity_list=list()
+            used_list=list()
+            quantity_list.append(batches.quantity_received)
+            used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
+            for use in used:
+                used_list.append(use.quantity)
+            batch_dict[batches.batch_number]=sumofquantities(quantity_list)-sumofquantities(used_list)
+
+        return Response(batch_dict)
+
+
+class BatchTrack(APIView):
+    def get(self,request,id):
+        traces=Transaction.objects.filter(transaction_type__type_name='purchase').filter(batch=id).values('location_to').dictinct()
+        length=len(traces)
+        last_transaction=traces[length-1]
+        #last_transaction.location_from
+        #place tp go to
+        next_hop=last_transaction.corresponding_transaction
+        Transaction.objects.filter(transaction_type__type_name='sales').filter(reference_number=next_hop)
+        
+        pass

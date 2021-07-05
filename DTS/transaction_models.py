@@ -29,6 +29,7 @@ class Transaction(models.Model):
     reference_number=models.CharField(max_length=20,blank=True,editable=False,unique=True,default=generate_num)
     transaction_type=models.ForeignKey(TransactionType,on_delete=models.SET_NULL,null=True)
     batch=models.ForeignKey(Batch,on_delete=DO_NOTHING)
+    corresponding_transaction=models.CharField(max_length=20,blank=True,null=True)
     description=models.TextField(blank=True,null=True)
     #quantity_measure=models.CharField(max_length=2)
     quantity=models.IntegerField()

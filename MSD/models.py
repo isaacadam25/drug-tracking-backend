@@ -63,16 +63,16 @@ class Order(models.Model):
 
 class OrderedItem(models.Model):
     def generate_num():
-        serials=[]
-        new=list(Order.objects.values_list('item_number'))
-        for n in new:
-            for l in n:
-                serials.append(l)
-        not_unique = True
-        while not_unique:
-            x = random.randint(10000000,99999999)
-            if x not in serials:
-                not_unique=False
+        # serials=[]
+        # new=list(Order.objects.values_list('item_number'))
+        # for n in new:
+        #     for l in n:
+        #         serials.append(l)
+        # not_unique = True
+        # while not_unique:
+        x = random.randint(10000000,99999999)
+            # if x not in serials:
+            #     not_unique=False
         return x
     item_number=models.IntegerField(blank=True,unique=True,default=generate_num)
     batch=models.ForeignKey(Batch,on_delete=models.CASCADE)
