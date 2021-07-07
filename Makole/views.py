@@ -182,7 +182,10 @@ class TransactionAPI(generics.ListCreateAPIView):
     queryset=Transaction.objects.all()
     serializer_class=TransactionSerializer
 
-
+class PatientTypeAPI(generics.ListCreateAPIView):
+    permission_classes= (IsAuthenticated,)
+    queryset=PatientType.objects.all()
+    serializer_class=PatientTypeSerializer
 
 ###############################PRESCRIPITON#######################
 class AcceptPrescriptionAPI(APIView):

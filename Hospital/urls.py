@@ -15,6 +15,8 @@ urlpatterns = [
     path('sales/transactions',TransactionAPI.as_view(),name="transactions"),
     path('hospital/labtests',LabtestAPI.as_view(),name="labtests"),
     path('hospital/patients/',PatientAPI.as_view(),name="patients"),
+    path('hospital/patient-type',PatientTypeAPI.as_view(),name="patient-type"),
+
     path('hospital/appointments/',AppointmentAPI.as_view(),name="appointments"),
     path('hospital/appointments/pending',PendingAppointmentAPI.as_view(),name="pending-appointment"),
     path('hospital/appointments/complete',CompleteAppointmentAPI.as_view(),name="complete-appointment"),
