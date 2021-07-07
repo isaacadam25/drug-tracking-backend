@@ -197,8 +197,10 @@ class AcceptTransactionAPI(APIView):
         batch_received=Batch.objects.get(id=transaction.batch.id)
         transaction.is_accepted=True
         new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=transaction.batch,quantity=transaction.quantity,location_to=transaction.location_to,location_from=transaction.location_from,is_accepted=True)
-        transaction.save()
         new_trans.save()
+        link=new_trans.reference_number
+        transaction.corresponding_transaction=link
+        transaction.save()
         batch_serializer=AcceptBatchSerializer(batch_received)
         serializer=TransactionSerializer(transaction)
         content={'transaction':serializer.data , 'batch_information':batch_serializer.data}

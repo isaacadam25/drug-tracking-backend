@@ -16,6 +16,8 @@ class PatientType(models.Model):
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)
+    weight=models.FloatField()
+    height=models.FloatField()
     def __str__(self):
        return f"{self.name}"
 

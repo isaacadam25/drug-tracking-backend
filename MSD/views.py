@@ -73,14 +73,4 @@ class RemainingMedicineMSD(APIView):
         return Response(batch_dict)
 
 
-class BatchTrack(APIView):
-    def get(self,request,id):
-        traces=Transaction.objects.filter(transaction_type__type_name='purchase').filter(batch=id).values('location_to').dictinct()
-        length=len(traces)
-        last_transaction=traces[length-1]
-        #last_transaction.location_from
-        #place tp go to
-        next_hop=last_transaction.corresponding_transaction
-        Transaction.objects.filter(transaction_type__type_name='sales').filter(reference_number=next_hop)
-        
-        pass
+

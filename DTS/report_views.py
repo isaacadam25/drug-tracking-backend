@@ -19,6 +19,8 @@ from DTS.hub_serializers import *
 from DTS.stock_serializers import *
 from DTS.transaction_serializers import *
 from DTS.user_serializers import *
+from django.db.models import F
+
 
 
 class TopApprovedMedicine(APIView):
@@ -81,5 +83,53 @@ class GetRemainingMedicineHospital(APIView):
             newisnt=Institute.objects.get(id=institute['location_to'])
             institutes[newisnt.reference_number]=batch_dict
         #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(institutes)   
+        return Response(institutes)
+
+# class GetAllDrugsFromHospital(APIView):
+#     permission_classes=(IsAuthenticated,)
+#     def get(self,request,rno):
+#         batches=Transaction.objects.filter(transaction_type__type_name='purchase').filter(location_to=rno).values('batch').distinct()
+#         #all_drugs_entered=Transaction.objects.filter(transaction_type__type_name='purchase').filter(location_to=rno).values('batch').distinct()
+#         hospital_batches=dict()
+#         for batch in batches:
+#             val=Batch.objects.get(id=batch['batch'])
+            
+#             hospital_batches[val.batch_number]=val
+
+
         
+#         pass
+
+class GetBatchLost(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+
+        #batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(location_to=F(~Q('location_from')))
+        batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from')))
+        output=TransactionSerializer(batches,many=True)
+        return Response(output.data)
+
+class BatchTrace(APIView):
+    def get(self,request,id):
+        traces=Transaction.objects.filter(transaction_type__type_name='purchase').filter(batch=id)
+        #initial location
+        msd=Approval.objects.get(id=id)
+        val1=Institute.objects.get(name='msd') 
+        time_location=dict()
+        time_location[val1.name]= msd.date_approved
+        #all other following locations
+        for local in traces:
+           #location_track=Transaction.objects.filter(location_to=local).order_by('date_added')
+           val=Institute.objects.get(id=local.location_to.id)
+           time_location[val.name]=local.date_added
+        return Response(time_location)
+
+class BatchTrack(APIView):
+    def get(self,request,id):
+        location=Transaction.objects.filter(transaction_type__type_name='sales').filter(batch=id).values('location_to')
+        all=Transaction.objects.filter(transaction_type__type_name='sales')
+       #for al l
+        latest=location.latest('date_added')
+        
+        pass
+    

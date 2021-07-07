@@ -13,6 +13,7 @@ urlpatterns = [
     path('apis/v1/makole/',include('Makole.urls')),
     path('apis/v1/benja/',include('Benja.urls')),
     path('apis/v1/dts/',include('DTS.urls')),
+    path('apis/v1/dts/report/',include('DTS.report_urls')),
     path('apis/v1/dts/login/',Log.as_view(),name="login"),
     path('apis/v1/hospital/login/',LoginAPI.as_view(),name="login")
 ]

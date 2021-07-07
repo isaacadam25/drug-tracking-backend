@@ -26,10 +26,7 @@ urlpatterns = [
     path('transactions/create/',CreateTransactionAPI.as_view(),name="create-transaction"),
     path('transactions/type',TransactionTypeAPI.as_view(),name="transaction-types"),
     path('transactions/details/',TransactionDetailView.as_view(),name="transaction_details"),
-    path('report/manufacturers/approved',TopApprovedManufacturersAPI.as_view(),name="top-manufacturer"),
-    path('report/manufacturers/declined',TopDeclinedManufacturersAPI.as_view(),name="top-manufacturer"),
-    path('report/drugs/top-approved',TopApprovedMedicine.as_view(),name="top-medicine"),
-    path('report/drugs/remaining',GetRemainingMedicineHospital.as_view(),name="remain-medicine"),
+    
     path('hub/institute/',InstituteAPI.as_view(),name="institute"),
     path('hub/destinations/',DistributionAPI.as_view(),name="institutes"),
     path('hub/location',LocationAPI.as_view(),name="location"),
