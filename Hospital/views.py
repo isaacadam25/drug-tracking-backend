@@ -16,6 +16,8 @@ from Hospital.hospital_models import *
 from Hospital.pharmacy_serializers import *
 from Hospital.pharmacy_models import HospitalBatch as Batch
 from DTS.hub_models import Institute
+from DTS.stock_models import Batch as DTSBatch
+
 from DTS.transaction_models import Transaction as DTStransaction, TransactionType
 from DTS.transaction_serializers import TransactionSerializer as DTSTransactionSerializer
 from Hospital.hospital_serializers import *
@@ -201,6 +203,7 @@ class AcceptPrescriptionAPI(APIView):
         hospital_actual=Institute.objects.get(reference_number='INS70860001')
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
+        equivalent_batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number)
         new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=prescription.batch,quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
         prescription.save()
         new_trans.save()
