@@ -125,6 +125,12 @@ class DiagnosesAPI(generics.ListCreateAPIView):
     queryset=Diagnosis.objects.all()
     serializer_class=DiagnosisSerializer
 
+class SingleDiagnosesAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Diagnosis.objects.all()
+    lookup_url_kwarg='id'
+    serializer_class=DiagnosisSerializer
+
 class Prescriptions(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Prescription.objects.all()
@@ -201,6 +207,7 @@ class AcceptPrescriptionAPI(APIView):
         serializer=PrescriptionSerializer(prescription)
         return Response(serializer.data)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
