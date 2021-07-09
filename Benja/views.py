@@ -207,6 +207,12 @@ class AcceptPrescriptionAPI(APIView):
         serializer=PrescriptionSerializer(prescription)
         return Response(serializer.data)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class SinglePrescriptionAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.all()
+    lookup_url_kwarg='id'
+    serializer_class=PrescriptionSerializer
 
 
 

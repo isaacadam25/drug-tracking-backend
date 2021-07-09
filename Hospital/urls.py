@@ -17,6 +17,7 @@ urlpatterns = [
     path('hospital/patients/',PatientAPI.as_view(),name="patients"),
     path('hospital/patient-type',PatientTypeAPI.as_view(),name="patient-type"),
     path('hospital/diagnoses',DiagnosesAPI.as_view(),name="patient-diagnoses"),
+    path('hospital/prescriptions/<int:id>',SinglePrescriptionAPI.as_view(),name="single-prescriptions"),
 
     path('hospital/diagnoses/<int:id>',SingleDiagnosesAPI.as_view(),name="single-diagnoses"),
 
