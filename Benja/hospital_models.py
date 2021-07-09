@@ -26,6 +26,8 @@ class Patient(models.Model):
     last_name=models.CharField(max_length=20)
     other_name=models.CharField(max_length=20,null=True, blank=True)
     is_male=models.BooleanField()
+    weight=models.FloatField()
+    height=models.FloatField()
     def generate_num():
         
         serials=[]
