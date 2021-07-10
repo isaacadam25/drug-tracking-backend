@@ -4,7 +4,8 @@ from rest_framework import generics
 from rest_framework.views import APIView,Response
 from .serializers import *
 from DTS.stock_models import Batch,Approval
-from DTS.transaction_models import Transaction
+from DTS.hub_models import Institute
+from DTS.transaction_models import Transaction, TransactionType
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Create your views here.
@@ -13,10 +14,24 @@ class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'id'
     queryset=Medicine.objects.all()
 
+class SendOrderAPI(APIView):
+    def patch(self,request,id,format=None):
+        transaction_type=TransactionType.objects.get(type_name='sales')
+        location_from= Institute.objects.get(name='msd')
+        order_to=Order.objects.get(id=id)
+        order_items=OrderedItem.objects.filter(order=order_to)
+        for order_item in order_items:
+            new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=order_item.batch,quantity=order_item.quantity,location_to=order_to.destination,location_from=location_from)
+            new_trans.save()
+        serializer=ItemSerializer(order_items,many=True)
+        return Response(serializer.data)
+
+
 class MedicineAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Medicine.objects.all()
     serializer_class=MedicineSerializer
+
 
 class CreateViewOrdersAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)

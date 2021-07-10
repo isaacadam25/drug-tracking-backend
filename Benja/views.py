@@ -75,7 +75,7 @@ class MedicineAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Medicine.objects.all()
     serializer_class=MedicineSerializer
-class BatchAPI(generics.ListCreateAPIView):
+class BatchAPI(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Batch.objects.all()
     serializer_class=BatchSerializer
@@ -213,6 +213,25 @@ class SinglePrescriptionAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset=Prescription.objects.all()
     lookup_url_kwarg='id'
     serializer_class=PrescriptionSerializer
+
+class BatchAddAPI(APIView):
+    def post(self,request,id):
+        serializer=BatchSerializer(data=request.data)
+        all_batch_no=Batch.objects.values('batch_number').distinct()
+        batch_no_1=serializer.data['batch_number']
+        if batch_no_1 in all_batch_no:
+            quantity_received=serializer.data['quantity_received']
+            existing_batch=Batch.objects.get(batch_number=batch_no_1)
+            existing_batch.quantity_received=existing_batch.quantity_received+quantity_received
+            existing_batch.save()
+            serializer=BatchSerializer(existing_batch)
+            Response(serializer.data,status=status.HTTP_201_CREATED)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
