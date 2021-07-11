@@ -190,6 +190,12 @@ class ViewUnacceptedTransactionListAPI(generics.ListAPIView):
         serializer=TransactionSerializer(unaccepted,many=True)
         return Response(serializer.data)
 
+class ViewUnacceptedTransactionListMSDAPI(generics.ListAPIView):
+    def get(self,request,ref):
+        unaccepted=Transaction.objects.filter(location_from__name='msd').filter(is_accepted=False).filter(transaction_type__type_name='sales')
+        serializer=TransactionSerializer(unaccepted,many=True)
+        return Response(serializer.data)
+
 class AcceptTransactionAPI(APIView):
     def patch(self,request,id,format=None):
         transaction=Transaction.objects.get(id=id)

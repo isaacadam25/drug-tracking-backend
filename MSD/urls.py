@@ -8,6 +8,9 @@ urlpatterns=[
     path('stock/medicine/<int:id>',MedicineDetailView.as_view(),name="medicine"),
     path('stock/medicine',MedicineAPI.as_view(),name="medicine"),
     path('stock/medicine/remaining',RemainingMedicineMSD.as_view(),name="remaining-medicine"),
+    path('stock/medicine/expired',GetExpiredMSDBatches.as_view(),name="remaining-medicine"),
+    path('stock/transaction/accepted',GetAllAcceptedBatchesAPI.as_view(),name="accepted-orders"),
+    path('stock/transaction/pending',GetExpiredMSDBatches.as_view(),name="pending-orders"),
     path('order',CreateViewOrdersAPI.as_view(),name="order"),
     path('order/send/<int:id>',SendOrderAPI.as_view(),name="send_order"),
 

@@ -22,6 +22,7 @@ urlpatterns = [
     path('transactions/',TransactionAPI.as_view(),name="transactions"),
     path('transactions/purchase',PurchaseTransactionAPI.as_view(),name="transactions"),
     path('transactions/unaccepted/<str:ref>',ViewUnacceptedTransactionListAPI.as_view(),name="unaccepted-transactions"),
+    path('transactions/pending',ViewUnacceptedTransactionListMSDAPI.as_view(),name="pending-transactions"),
     path('transactions/accept/<int:id>',AcceptTransactionAPI.as_view(),name="unaccepted-transactions"),
     path('transactions/create/',CreateTransactionAPI.as_view(),name="create-transaction"),
     path('transactions/type',TransactionTypeAPI.as_view(),name="transaction-types"),
