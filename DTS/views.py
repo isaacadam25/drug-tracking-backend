@@ -196,6 +196,18 @@ class ViewUnacceptedTransactionListMSDAPI(generics.ListAPIView):
         serializer=TransactionSerializer(unaccepted,many=True)
         return Response(serializer.data)
 
+class ViewAcceptedTransactionListMSDAPI(generics.ListAPIView):
+    def get(self,request):
+        accepted=Transaction.objects.filter(location_from__name='msd').filter(is_accepted=True).filter(transaction_type__type_name='sales')
+        serializer=TransactionSerializer(accepted,many=True)
+        return Response(serializer.data)
+
+class ViewAllTransactionListMSDAPI(generics.ListAPIView):
+    def get(self,request):
+        all=Transaction.objects.filter(location_from__name='msd').filter(transaction_type__type_name='sales')
+        serializer=TransactionSerializer(all,many=True)
+        return Response(serializer.data)
+
 class AcceptTransactionAPI(APIView):
     def patch(self,request,id,format=None):
         transaction=Transaction.objects.get(id=id)
