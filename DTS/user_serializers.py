@@ -34,6 +34,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     location_region=serializers.CharField(source="organization.location.region",read_only=True)
     location_city=serializers.CharField(source="organization.location.city",read_only=True)
     organization_name=serializers.CharField(source="organization.name",read_only=True)
+    organization_number=serializers.CharField(source="organization.reference_number",read_only=True)
     organization_type=serializers.CharField(source="organization.institute_type.name",read_only=True)
     
     class Meta:
