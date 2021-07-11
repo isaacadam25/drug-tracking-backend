@@ -12,6 +12,7 @@ urlpatterns=[
     path('order/send/<int:id>',SendOrderAPI.as_view(),name="send_order"),
 
     path('order-items/<int:pk>/',CreateViewOrderItemAPI.as_view(),name="order-item"),
+    path('order-items',OrderItemAPI.as_view(),name="order-items"),
     path('order/latest',LatestOrderAPI.as_view(),name="latest-order"),
     path('order/<int:id>',SingleOrderAPI.as_view(),name="single-order"),
 

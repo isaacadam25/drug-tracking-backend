@@ -46,6 +46,7 @@ class CreateViewOrderItemAPI(APIView):
         serializer=ItemSerializer(items,many=True)
         return Response(serializer.data)
 
+
 class LatestOrderAPI(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
 
@@ -54,6 +55,11 @@ class LatestOrderAPI(generics.RetrieveAPIView):
     queryset=Order.objects.all()
     def get_object(self, *args, **kwargs):
         return self.queryset.latest('order_date')
+
+class OrderItemAPI(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=OrderedItem.objects.all()
+    serializer_class=ItemSerializer
 
 class SingleOrderAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
