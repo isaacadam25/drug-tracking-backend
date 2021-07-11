@@ -85,6 +85,83 @@ class GetRemainingMedicineHospital(APIView):
         #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
         return Response(institutes)
 
+class GetRemainingMedicineSingleHospital(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request,refno):
+        institute=Institute.objects.get(reference_number=refno)
+        medicine=Transaction.objects.values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        for batches in medicine:
+            stock=Transaction.objects.filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
+            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='sales')
+            quantity_list=list()
+            used_list=list()
+            for seen in stock:
+                quantity_list.append(seen.quantity)
+            for use in used:
+                used_list.append(use.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict[newvar.batch_number]=(sumofquantities(quantity_list)*newvar.unit_of_measure)-sumofquantities(used_list)
+         #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(batch_dict)
+
+class GetRemainingMedicineSingleHospitalQuantity(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request,refno):
+        institute=Institute.objects.get(reference_number=refno)
+        medicine=Transaction.objects.values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        for batches in medicine:
+            stock=Transaction.objects.filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
+            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='sales')
+            quantity_list=list()
+            used_list=list()
+            for seen in stock:
+                quantity_list.append(seen.quantity)
+            for use in used:
+                used_list.append(use.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict[newvar.batch_number]=((sumofquantities(quantity_list)*newvar.unit_of_measure)-sumofquantities(used_list))/newvar.unit_of_measure
+        amount=0
+        for quantities in batch_dict.values():
+            amount=amount+quantities
+        content={'Available':int(amount)}
+         #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(content)
+
+class GetReceivedMedicineQuantity(APIView):
+    def get(self,request,refno):
+        medicine=Transaction.objects.filter(location_to__reference_number=refno).values('batch').distinct()
+        batch_dict=dict()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        for batches in medicine:
+            stock=Transaction.objects.filter(location_to__reference_number=refno).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
+            quantity_list=list()
+            for seen in stock:
+                quantity_list.append(seen.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict[newvar.batch_number]=sumofquantities(quantity_list)
+        amount=0
+        for quantities in batch_dict.values():
+            amount=amount+quantities
+        content={'Received':int(amount)}
+        return Response(content)
+
+
 # class GetAllDrugsFromHospital(APIView):
 #     permission_classes=(IsAuthenticated,)
 #     def get(self,request,rno):

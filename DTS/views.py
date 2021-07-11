@@ -214,3 +214,9 @@ class getAllIncomingTransactions(APIView):
         transactions=Transaction.objects.filter(location_to=hospital_actual).filter(transaction_type__type_name='sales').filter(is_accepted=False)
         serializer=TransactionSerializer(transactions,many=True)
         return Response(serializer.data)
+
+class GetHospitalName(APIView):
+    def get(self,request,refno):
+        institution=Institute.objects.get(reference_number=refno)
+        content={'id':institution.id,'name':institution.name}
+        return Response(content)
