@@ -93,7 +93,7 @@ class RemainingMedicineMSD(APIView):
 
         return Response(batch_dict)
 # medicine_left=Transaction.objects.filter(batch__expiry_date__lte=datetime.date.today()).values('batch').distinct()
-class GetAvailableMSDBAtches:
+class GetAvailableMSDBAtches(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         locations=Transaction.objects.values('location_to').distinct()
