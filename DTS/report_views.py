@@ -182,7 +182,7 @@ class GetBatchLost(APIView):
     def get(self,request):
 
         #batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(location_to=F(~Q('location_from')))
-        batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from')))
+        batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from'))).filter(date_added__lte=(datetime.date.today()-datetime.timedelta(days=3)))
         output=TransactionSerializer(batches,many=True)
         return Response(output.data)
 

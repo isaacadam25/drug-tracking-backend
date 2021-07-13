@@ -118,6 +118,39 @@ class GetAvailableMSDBAtches(APIView):
 
         return Response(batch_dict)
 
+class GetAvailableQuantityMSDBAtches(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        locations=Transaction.objects.values('location_to').distinct()
+        medicine_in=Approval.objects.filter(status=True).filter(id__expiry_date__gt=datetime.date.today()).values('id').distinct()
+        medicine_left=Transaction.objects.values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        final_quantity=0
+        for stock in medicine_in:
+            msd=Institute.objects.get(name="msd")
+            batches=Batch.objects.get(id=stock['id'])
+            quantity_list=list()
+            used_list=list()
+            quantity_list.append(batches.quantity_received)
+            used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
+            
+            for use in used:
+                used_list.append(use.quantity)
+            batch_dict[batches.batch_number]=((sumofquantities(quantity_list)*batches.unit_of_measure)-sumofquantities(used_list))/batches.unit_of_measure
+            for quantity in batch_dict.values():
+                final_quantity=final_quantity+quantity
+
+
+
+
+        return Response(final_quantity)
+
+
 class GetExpiredMSDBatches(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):

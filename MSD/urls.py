@@ -9,6 +9,7 @@ urlpatterns=[
     path('stock/medicine',MedicineAPI.as_view(),name="medicine"),
     path('stock/medicine/remaining',RemainingMedicineMSD.as_view(),name="remaining-medicine"),
     path('stock/medicine/available',GetAvailableMSDBAtches.as_view(),name="available-medicine"),
+    path('stock/medicine/available/quantity',GetAvailableQuantityMSDBAtches.as_view(),name="available-medicine-quantity"),
     path('stock/medicine/expired',GetExpiredMSDBatches.as_view(),name="remaining-medicine"),
     path('stock/transaction/accepted',GetAllAcceptedBatchesAPI.as_view(),name="accepted-orders"),
     path('stock/transaction/pending',GetExpiredMSDBatches.as_view(),name="pending-orders"),
