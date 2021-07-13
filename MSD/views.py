@@ -81,7 +81,7 @@ class RemainingMedicineMSD(APIView):
             return sum
         batch_dict=dict()
         for stock in medicine_in:
-            msd=Institute.objects.get(reference_number="INS75821246")
+            msd=Institute.objects.get(name="msd")
             batches=Batch.objects.get(id=stock['id'])
             quantity_list=list()
             used_list=list()
