@@ -207,6 +207,33 @@ class GetAllAcceptedBatchesAPI(APIView):
 
 class GetPendingTransactions(APIView):
     pass
+
+class GetDistributedMedicines(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        locations=Transaction.objects.values('location_to').distinct()
+        medicine_in=Approval.objects.filter(status=True).values('id').distinct()
+        medicine_left=Transaction.objects.values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        for stock in medicine_in:
+            msd=Institute.objects.get(name="msd")
+            batches=Batch.objects.get(id=stock['id'])
+            used_list=list()
+            used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
+            for use in used:
+                used_list.append(use.quantity)
+            batch_dict[batches.batch_number]=sumofquantities(used_list)/batches.unit_of_measure
+        quantity=0
+        for batch in batch_dict.values():
+            quantity=quantity+int(batch)
+
+        return Response(quantity)
+
     
     
 
