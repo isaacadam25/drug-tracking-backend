@@ -143,7 +143,7 @@ class GetAvailableQuantityMSDBAtches(APIView):
                 used_list.append(use.quantity)
             batch_dict[batches.batch_number]=((sumofquantities(quantity_list)*batches.unit_of_measure)-sumofquantities(used_list))/batches.unit_of_measure
             for quantity in batch_dict.values():
-                final_quantity=final_quantity+quantity
+                final_quantity=final_quantity+int(quantity)
 
 
 
