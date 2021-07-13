@@ -148,7 +148,7 @@ class GetAvailableQuantityMSDBAtches(APIView):
 
 
 
-        return Response(final_quantity)
+        return Response(int(final_quantity))
 
 
 class GetExpiredMSDBatches(APIView):
