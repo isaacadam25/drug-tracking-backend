@@ -106,7 +106,7 @@ class GetAvailableMSDBAtches(APIView):
             return sum
         batch_dict=dict()
         for stock in medicine_in:
-            msd=Institute.objects.get(reference_number="INS75821246")
+            msd=Institute.objects.get(name="msd")
             batches=Batch.objects.get(id=stock['id'])
             quantity_list=list()
             used_list=list()
@@ -131,7 +131,7 @@ class GetExpiredMSDBatches(APIView):
             return sum
         batch_dict=dict()
         for stock in medicine_in:
-            msd=Institute.objects.get(reference_number="INS75821246")
+            msd=Institute.objects.get(name="msd")
             batches=Batch.objects.get(id=stock['id'])
             quantity_list=list()
             used_list=list()
@@ -140,8 +140,11 @@ class GetExpiredMSDBatches(APIView):
             for use in used:
                 used_list.append(use.quantity)
             batch_dict[batches.batch_number]=sumofquantities(quantity_list)-sumofquantities(used_list)
+        quantity=0
+        for batch in batch_dict.values():
+            quantity=quantity+batch
 
-        return Response(batch_dict)
+        return Response(quantity)
     
 class GetAllAcceptedBatchesAPI(APIView):
     permission_classes=(IsAuthenticated,)
@@ -156,15 +159,18 @@ class GetAllAcceptedBatchesAPI(APIView):
             return sum
         batch_dict=dict()
         for stock in medicine_in:
-            msd=Institute.objects.get(reference_number="INS75821246")
+            msd=Institute.objects.get(name="msd")
             batches=Batch.objects.get(id=stock['id'])
             used_list=list()
             used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id']).filter(is_accepted=True)
             for use in used:
                 used_list.append(use.quantity)
             batch_dict[batches.batch_number]=sumofquantities(used_list)
+        quantity=0
+        for batch in batch_dict.values():
+            quantity=quantity+batch
 
-        return Response(batch_dict)
+        return Response(quantity)
 
 class GetPendingTransactions(APIView):
     pass
