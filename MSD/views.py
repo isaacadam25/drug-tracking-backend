@@ -141,9 +141,9 @@ class GetAvailableQuantityMSDBAtches(APIView):
             
             for use in used:
                 used_list.append(use.quantity)
-            batch_dict[batches.batch_number]=((sumofquantities(quantity_list))-sumofquantities(used_list))
-            for quantity in batch_dict.values():
-                final_quantity=final_quantity+int(quantity)
+            final_quantity=final_quantity+((sumofquantities(quantity_list))-sumofquantities(used_list))
+            # for quantity in batch_dict.values():
+            #     int(quantity)
 
 
 
