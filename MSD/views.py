@@ -254,12 +254,10 @@ class GetDistributedMedicines(APIView):
             used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
             for use in used:
                 used_list.append(use.quantity)
-            batch_dict[batches.batch_number]=sumofquantities(used_list)/batches.unit_of_measure
-        quantity=0
-        for batch in batch_dict.values():
-            quantity=quantity+int(batch)
+            batch_dict[batches.batch_number]=sumofquantities(used_list)
+        
 
-        return Response(quantity)
+        return Response(batch_dict)
 
     
     
