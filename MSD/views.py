@@ -122,7 +122,7 @@ class GetAvailableQuantityMSDBAtches(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         locations=Transaction.objects.values('location_to').distinct()
-        medicine_in=Approval.objects.filter(status=True).filter(id__expiry_date__gt=datetime.date.today()).values('id').distinct()
+        medicine_in=Approval.objects.filter(status=True).filter(id__expiry_date__lte=datetime.date.today()).values('id').distinct()
         medicine_left=Transaction.objects.values('batch').distinct()
         def sumofquantities(arr):
             sum=0
@@ -130,26 +130,23 @@ class GetAvailableQuantityMSDBAtches(APIView):
                 sum=sum+values
             return sum
         batch_dict=dict()
-        final_quantity=0
-        for stock in medicine_in:
-            msd=Institute.objects.get(name="msd")
-            batches=Batch.objects.get(id=stock['id'])
-            quantity_list=list()
-            used_list=list()
-            quantity_list.append(batches.quantity_received)
-            used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
+        msd=Institute.objects.get(name="msd")
+        batches=Approval.objects.filter(id__expiry_date__gt=datetime.date.today()).filter(status=True)
+        quantity_inside=0
+        used_amount=0
+        used_list=list()
+        for batch in batches:
+            quantity_inside=quantity_inside+batch.id.quantity_received
+        used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch__expiry_date__gt=datetime.date.today())
             
-            for use in used:
-                used_list.append(use.quantity)
-            final_quantity=final_quantity+((sumofquantities(quantity_list))-sumofquantities(used_list))
-            # for quantity in batch_dict.values():
-            #     int(quantity)
+        for use in used:
+            used_amount=used_amount+use.quantity
 
+        final_quantity=quantity_inside-used_amount
+        # for batch in batch_dict.values():
+        #     quantity=quantity+batch
 
-
-
-        return Response(int(final_quantity))
-
+        return Response(final_quantity)
 
 class GetExpiredMSDBatches(APIView):
     permission_classes=(IsAuthenticated,)
@@ -162,22 +159,23 @@ class GetExpiredMSDBatches(APIView):
             for values in arr:
                 sum=sum+values
             return sum
+        final_quantity=0
         batch_dict=dict()
-        for stock in medicine_in:
-            msd=Institute.objects.get(name="msd")
-            batches=Batch.objects.get(id=stock['id'])
-            quantity_list=list()
-            used_list=list()
-            quantity_list.append(batches.quantity_received)
-            used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch=stock['id'])
-            for use in used:
-                used_list.append(use.quantity)
-            batch_dict[batches.batch_number]=sumofquantities(quantity_list)-sumofquantities(used_list)
-        quantity=0
-        for batch in batch_dict.values():
-            quantity=quantity+batch
+        msd=Institute.objects.get(name="msd")
+        batches=Approval.objects.filter(id__expiry_date__lte=datetime.date.today())
+        quantity_inside=0
+        used_list=list()
+        for batch in batches:
+            quantity_inside=quantity_inside+batch.id.quantity_received
+        used=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(batch__expiry_date__lte=datetime.date.today())
+            
+        for use in used:
+            used_list.append(use.quantity)
+        final_quantity=final_quantity+quantity_inside-sumofquantities(used_list)
+        # for batch in batch_dict.values():
+        #     quantity=quantity+batch
 
-        return Response(quantity)
+        return Response(final_quantity)
     
 class GetAllAcceptedBatchesAPI(APIView):
     permission_classes=(IsAuthenticated,)
