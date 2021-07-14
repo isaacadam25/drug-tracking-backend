@@ -5,6 +5,7 @@ from .views import *
 urlpatterns = [
     path('userprofile/',LoggedUserProfile.as_view(), name='singleuserprofile'),
     path('userslist/',UserProfileView.as_view(),name="userprofile"),
+    path('userlist/doctors/',GetAvailableDoctors.as_view(),name="get-doctors"),
     path('pharmacy/medicine',MedicineAPI.as_view(),name="medicine"),
     path('pharmacy/batches',BatchAPI.as_view(),name="batch"),
     path('pharmacy/batches/create',CreateBatchAPI.as_view(),name="create-batch"),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('hospital/appointments/active',ActiveAppointmentAPI.as_view(),name="active-appointment"),
     path('hospital/appointment/<int:id>',SingleAppointmentAPI.as_view(),name="single-appointment"),
     path('hospital/prescriptions',Prescriptions.as_view(),name="prescriptions"),
+    path('hospital/prescriptions/pending',PrescriptionsPending.as_view(),name="prescriptions-pending"),
     path('hospital/prescriptions/<int:id>',SinglePrescriptionAPI.as_view(),name="single-prescriptions"),
     path('hospital/prescriptions/accept/<int:id>',AcceptPrescriptionAPI.as_view(),name="accept-prescriptions"),
     path('hospital/appointment/<int:id>/prescriptions',GetAppointmentPrescriptions.as_view(),name="appointment-prescriptions"),

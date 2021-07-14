@@ -16,6 +16,8 @@ from Makole.hospital_models import *
 from Makole.pharmacy_serializers import *
 from Makole.pharmacy_models import MakoleBatch as Batch
 from DTS.hub_models import Institute
+from DTS.stock_models import Batch as DTSBatch
+from DTS.user_models import UserProfile as DTSUser
 from DTS.transaction_models import Transaction as DTStransaction, TransactionType
 from DTS.transaction_serializers import TransactionSerializer as DTSTransactionSerializer
 from Makole.hospital_serializers import *
@@ -160,6 +162,10 @@ class Prescriptions(generics.ListCreateAPIView):
     queryset=Prescription.objects.all()
     serializer_class=PrescriptionSerializer
 
+class PrescriptionsPending(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.filter(is_sold=False)
+    serializer_class=PrescriptionSerializer
 
 class GetAppointmentPrescriptions(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -221,11 +227,12 @@ class PatientTypeAPI(generics.ListCreateAPIView):
 class AcceptPrescriptionAPI(APIView):
     def patch(self,request,id,format=None):
         anonymous_user=self.request.user
+        user=DTSUser.objects.get(actual_user=anonymous_user)
         transaction_type=TransactionType.objects.get(type_name='sales')
-        hospital_actual=Institute.objects.get(reference_number='INS41714925')
+        hospital_actual=Institute.objects.get(id=user.organization.id)
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
-        new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=prescription.batch,quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
+        new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number),quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
         prescription.save()
         new_trans.save()
         serializer=PrescriptionSerializer(prescription)
@@ -237,6 +244,12 @@ class SinglePrescriptionAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset=Prescription.objects.all()
     lookup_url_kwarg='id'
     serializer_class=PrescriptionSerializer
+
+class GetAvailableDoctors(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=UserProfile.objects.filter(user_type__name='doctor')
+    serializer_class=UserProfileSerializer
+
 
 
 
