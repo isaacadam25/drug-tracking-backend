@@ -10,10 +10,9 @@ class MedicineBrandSerializer(serializers.ModelSerializer):
         model=MedicineBrand
         fields=['id','brand_name']
 class BatchSerializer(serializers.ModelSerializer):
-    medicine_brand=MedicineBrandSerializer()
     class Meta:
         model=Batch
-        fields=['id','batch_number','medicine_brand','medicine_name']
+        fields='__all__'
 class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model=MSDZone

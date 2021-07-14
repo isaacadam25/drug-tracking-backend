@@ -7,6 +7,8 @@ urlpatterns = [
     path('userslist/',UserProfileView.as_view(),name="userprofile"),
     path('pharmacy/medicine',MedicineAPI.as_view(),name="medicine"),
     path('pharmacy/batches',BatchAPI.as_view(),name="batch"),
+    path('pharmacy/batches/create',CreateBatchAPI.as_view(),name="create-batch"),
+
     path('pharmacy/suppliers',SupplierAPI.as_view(),name="suppliers"),
     path('sales/orders',OrderAPI.as_view(),name="orders"),
     path('sales/ordereditems',OrderedItemAPI.as_view(),name="items"),

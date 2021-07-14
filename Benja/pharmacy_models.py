@@ -24,15 +24,16 @@ class MedicineBrand(models.Model):
 
 class BenjaBatch(models.Model):
     batch_number=models.IntegerField(unique=True)
-    medicine_brand=models.ForeignKey(MedicineBrand,on_delete=models.PROTECT)
+    medicine_brand=models.CharField(max_length=50)
+    medicine_name=models.CharField(max_length=30)
     measure_options=(('ml','ML'),('cp','CP'),('tb','TB'))
     unit_of_measure = models.CharField(max_length=2, choices=measure_options,default='tb',blank=True)
     quantity_measure=models.IntegerField()
-    medicine_name=models.CharField(max_length=30)
     manufacturing_date=models.DateField()
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)
+    expiry_date=models.DateField()
     def __str__(self):
         return f'{self.batch_number}-{self.medicine_name}'
    

@@ -81,10 +81,22 @@ class BatchAPI(generics.ListCreateAPIView):
     serializer_class=BatchSerializer
 
 class CreateBatchAPI(APIView):
-    def post(self,request):
+    def patch(self,request):
         serializer = BatchSerializer(data=request.data)
-        batch=MakoleBatch.objects.values('batch_number')
+        batch=Batch.objects.values('batch_number').distinct()
+        b_n=request.data['batch_number']
+        quantity_data=request.data['quantity_received']
+        l=list()
+        for b in batch:
+            l.append(b['batch_number'])
         
+        if b_n in l:
+                update_batch=Batch.objects.get(batch_number=b_n)
+                new=int(update_batch.quantity_received)+int(quantity_data)
+                update_batch.quantity_received=int(new)
+                update_batch.save()
+                update_serializer=BatchSerializer(update_batch)
+                return Response(update_serializer.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,
