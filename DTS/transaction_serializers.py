@@ -14,6 +14,13 @@ class TransactionSerializer(serializers.ModelSerializer):
     source_location=serializers.CharField(source="location_from.location.region",read_only=True)
     drug_name=serializers.CharField(source="batch.medicine_detail.name",read_only=True)
     drug_manufacturer=serializers.CharField(source="batch.medicine_detail.manufacturer",read_only=True)
+    drug_type=serializers.CharField(source="batch.medicine_type.type_name",read_only=True)
+    quantity_measure=serializers.CharField(source="batch.unit_of_measure",read_only=True)
+    concentration=serializers.CharField(source="batch.concentration",read_only=True)
+    production_date=serializers.CharField(source="batch.production_date",read_only=True)
+    expiry_date=serializers.CharField(source="batch.expiry_date",read_only=True)
+
+
     class Meta:
         model=Transaction
         fields="__all__"
