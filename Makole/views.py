@@ -240,12 +240,13 @@ class PatientTypeAPI(generics.ListCreateAPIView):
 class AcceptPrescriptionAPI(APIView):
     def patch(self,request,id,format=None):
         anonymous_user=self.request.user
-        user=DTSUser.objects.get(actual_user=anonymous_user)
+        dts_user=DTSUser.objects.get(actual_user=anonymous_user)
         transaction_type=TransactionType.objects.get(type_name='sales')
-        hospital_actual=Institute.objects.get(id=user.organization.id)
+        hospital_actual=Institute.objects.get(reference_number=dts_user.organization.reference_number)
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
-        new_trans=DTStransaction.objects.create(transaction_type=transaction_type,batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number),quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
+        equivalent_batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number)
+        new_trans=DTStransaction.objects.create(initiator=dts_user,transaction_type=transaction_type,batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number),quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
         prescription.save()
         new_trans.save()
         serializer=PrescriptionSerializer(prescription)
