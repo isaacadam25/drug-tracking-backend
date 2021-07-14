@@ -261,7 +261,7 @@ class AcceptTransactionAPI(APIView):
         transaction.corresponding_transaction=link
         transaction.save()
         batch_serializer=AcceptBatchSerializer(batch_received)
-        serializer=TransactionSerializer(transaction)
+        serializer=TransactionSerializer(new_trans)
         content={'transaction':serializer.data , 'batch_information':batch_serializer.data}
         return Response(content)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
