@@ -155,10 +155,23 @@ class SingleDiagnosesAPI(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg='id'
     serializer_class=DiagnosisSerializer
 
-class Prescriptions(generics.ListCreateAPIView):
+class Prescriptions(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Prescription.objects.all()
     serializer_class=PrescriptionSerializer
+
+class CreatePrescription(APIView):
+    def post(self,request):
+        serializer = PrescriptionSerializer(data=request.data)
+        appointment_id=request.data['appointment']
+        app=Appointment.objects.get(id=appointment_id)
+        app.status='Complete'
+        app.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetAppointmentPrescriptions(generics.ListAPIView):
