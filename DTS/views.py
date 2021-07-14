@@ -139,6 +139,11 @@ class BatchApprovedAPI(generics.ListAPIView):
     queryset=Approval.objects.filter(status=True)
     serializer_class=BatchApprovalSerializer
 
+class ApprovedUnExpiredDrugs(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Approval.objects.filter(status=True).filter(id__expiry_date__gt=datetime.date.today())
+    serializer_class=BatchApprovalSerializer
+
 class SingleBatchApprovedAPI(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Approval.objects.filter(status=True)

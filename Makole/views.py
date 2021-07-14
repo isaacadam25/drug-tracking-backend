@@ -79,6 +79,18 @@ class BatchAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Batch.objects.all()
     serializer_class=BatchSerializer
+
+class CreateBatchAPI(APIView):
+    def post(self,request):
+        serializer = BatchSerializer(data=request.data)
+        batch=MakoleBatch.objects.values('batch_number')
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  
 class SupplierAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Supplier.objects.all()
