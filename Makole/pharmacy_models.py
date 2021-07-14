@@ -27,7 +27,7 @@ class MakoleBatch(models.Model):
     medicine_brand=models.CharField(max_length=50)
     medicine_name=models.CharField(max_length=30)
     measure_options=(('ml','ML'),('cp','CP'),('tb','TB'))
-    unit_of_measure = models.CharField(max_length=2, choices=measure_options,default='tb',blank=True)
+    unit_of_measure = models.CharField(max_length=10, choices=measure_options,default='tb',blank=True)
     concentration=models.CharField(max_length=15)
     quantity_measure=models.IntegerField()
     quantity_received=models.IntegerField()
