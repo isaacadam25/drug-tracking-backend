@@ -185,6 +185,33 @@ class GetBatchLost(APIView):
         batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from'))).filter(date_added__lte=(datetime.date.today()-datetime.timedelta(days=3)))
         output=TransactionSerializer(batches,many=True)
         return Response(output.data)
+class GetBatchLostFromMSD(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        #transaction to
+        sent=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from')))
+        #purchase_transaction
+        lost=dict()
+        for s in sent:
+            lost_item=dict()
+            received=Transaction.objects.get(corresponding_transaction=s.reference_number)
+            if received.quantity!=s.quantity:
+                lost_item['unit_quantity_lost'] = (received.quantity-s.quantity)*s.batch.unit_of_measure
+                #lost_item['sent_reference_number'] = 
+                lost_item['quantity_lost'] = (received.quantity-s.quantity)
+                lost_item['acceptor_fname'] = received.initiator.actual_user.first_name
+                lost_item['acceptor_lname'] = received.initiator.actual_user.last_name
+                lost_item['acceptor_organization'] = received.initiator.organization.name
+                lost_item['receiver_region'] = received.initiator.organization.location.region
+                lost_item['receiver_city'] = received.initiator.organization.location.city
+                lost_item['sender_fname']=s.initiator.actual_user.first_name
+                lost_item['sender_lname']=s.initiator.actual_user.last_name
+                lost_item['sender_organization']=s.initiator.organization.name
+                lost_item['sender_region']=s.initiator.organization.location.region
+                lost_item['sender_city']=s.initiator.organization.location.city
+                lost[s.reference_number]=lost_item
+
+        return Response(lost)
 
 class BatchTrace(APIView):
     def get(self,request,id):

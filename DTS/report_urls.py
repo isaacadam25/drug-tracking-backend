@@ -14,4 +14,6 @@ urlpatterns=[
     path('drugs/received/quantity/<str:refno>',GetReceivedMedicineQuantity.as_view(),name="received-med-hospital"),
     path('batch/trace/<int:id>',BatchTrace.as_view(),name="remain-medicine"),
     path('batch/track/missing',GetBatchLost.as_view(),name="lost-medicines"),
+    path('batch/track/lost',GetBatchLostFromMSD.as_view(),name="lost-batches"),
+
 ]

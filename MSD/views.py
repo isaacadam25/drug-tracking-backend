@@ -1,3 +1,4 @@
+from DTS.user_models import UserProfile
 from DTS.hub_models import Institute
 from django.shortcuts import render
 from rest_framework import generics
@@ -20,9 +21,10 @@ class SendOrderAPI(APIView):
         transaction_type=TransactionType.objects.get(type_name='sales')
         location_from= Institute.objects.get(name='msd')
         order_to=Order.objects.get(id=id)
+        profile=UserProfile.objects.get(actual_user=self.request.user)
         order_items=OrderedItem.objects.filter(order=order_to)
         for order_item in order_items:
-            new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=order_item.batch,quantity=order_item.quantity,location_to=order_to.destination,location_from=location_from)
+            new_trans=Transaction.objects.create(initiator=profile,transaction_type=transaction_type,batch=order_item.batch,quantity=order_item.quantity,location_to=order_to.destination,location_from=location_from)
             new_trans.save()
         serializer=ItemSerializer(order_items,many=True)
         return Response(serializer.data)

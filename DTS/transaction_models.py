@@ -2,6 +2,7 @@ from django.db.models.deletion import DO_NOTHING, PROTECT, ProtectedError
 from django.db import models
 from .stock_models import *
 from .hub_models import Institute
+from .user_models import UserProfile
 import random
 
 class TransactionType(models.Model):
@@ -33,6 +34,7 @@ class Transaction(models.Model):
     description=models.TextField(blank=True,null=True)
     #quantity_measure=models.CharField(max_length=2)
     quantity=models.IntegerField()
+    initiator=models.ForeignKey(UserProfile,on_delete=models.PROTECT)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)
     is_accepted=models.BooleanField(default=False,blank=True)

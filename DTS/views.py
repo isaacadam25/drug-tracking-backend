@@ -250,9 +250,11 @@ class AcceptTransactionAPI(APIView):
     def patch(self,request,id,format=None):
         transaction=Transaction.objects.get(id=id)
         transaction_type=TransactionType.objects.get(type_name='purchase')
+        transacted_user=self.request.user
+        profile=UserProfile.objects.get(actual_user=transacted_user)
         batch_received=Batch.objects.get(id=transaction.batch.id)
         transaction.is_accepted=True
-        new_trans=Transaction.objects.create(transaction_type=transaction_type,batch=transaction.batch,quantity=transaction.quantity,location_to=transaction.location_to,location_from=transaction.location_from,is_accepted=True)
+        new_trans=Transaction.objects.create(corresponding_transaction=transaction.reference_number,transaction_type=transaction_type,batch=transaction.batch,quantity=transaction.quantity,location_to=transaction.location_to,location_from=transaction.location_from,is_accepted=True,initiator=profile)
         new_trans.save()
         link=new_trans.reference_number
         transaction.corresponding_transaction=link
