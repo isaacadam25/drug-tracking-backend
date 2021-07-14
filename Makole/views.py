@@ -162,13 +162,10 @@ class Prescriptions(generics.ListAPIView):
     queryset=Prescription.objects.all()
     serializer_class=PrescriptionSerializer
 
-<<<<<<< HEAD
-=======
 class PrescriptionsPending(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Prescription.objects.filter(is_sold=False)
     serializer_class=PrescriptionSerializer
->>>>>>> 4ada38004a7eb36c234226ad39ad47e8f5c6b889
 class CreatePrescription(APIView):
     def post(self,request):
         serializer = PrescriptionSerializer(data=request.data)

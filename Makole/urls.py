@@ -28,10 +28,7 @@ urlpatterns = [
     path('hospital/appointments/active',ActiveAppointmentAPI.as_view(),name="active-appointment"),
     path('hospital/appointment/<int:id>',SingleAppointmentAPI.as_view(),name="single-appointment"),
     path('hospital/prescriptions',Prescriptions.as_view(),name="prescriptions"),
-<<<<<<< HEAD
-=======
     path('hospital/prescriptions/pending',PrescriptionsPending.as_view(),name="prescriptions-pending"),
->>>>>>> 4ada38004a7eb36c234226ad39ad47e8f5c6b889
     path('hospital/prescriptions/create',CreatePrescription.as_view(),name="create-prescriptions"),
     
     path('hospital/prescriptions/<int:id>',SinglePrescriptionAPI.as_view(),name="single-prescriptions"),
