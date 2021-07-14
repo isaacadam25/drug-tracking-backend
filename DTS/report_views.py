@@ -185,6 +185,18 @@ class GetBatchLost(APIView):
         batches=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from'))).filter(date_added__lte=(datetime.date.today()-datetime.timedelta(days=3)))
         output=TransactionSerializer(batches,many=True)
         return Response(output.data)
+# class GetBatchLostFromMSD(APIView):
+#     permission_classes=(IsAuthenticated,)
+#     def get(self,request):
+#         #transaction to
+#         sent=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from')))
+#         #purchase_transaction
+#         received_list=list()
+#         for s in sent:
+#             received_list.append(Transaction.objects.get(corresponding_transaction=sent.reference_number))
+#         if received.quantity=sent.quantity:
+
+#         return Response(output.data)
 
 class BatchTrace(APIView):
     def get(self,request,id):
