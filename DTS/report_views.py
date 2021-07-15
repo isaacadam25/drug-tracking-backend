@@ -374,7 +374,7 @@ class GetExpireTrend(APIView):
 
 class MedicineUsedPieChartAPI(APIView):
     def get(self,request,batchid):
-        institutes=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="government")).values('reference_number')
+        institutes=Institute.objects.filter(~Q(institute_type__name="ministry")).filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="government")).values('reference_number')
         newlist=list()
         for org in institutes:
             institute_dict=dict()
@@ -385,7 +385,7 @@ class MedicineUsedPieChartAPI(APIView):
                     sum=sum+values
                 return sum
             
-            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=institute).filter(batch=batchid).filter(transaction_type__type_name='sales')
+            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=F('location_from')).filter(batch=batchid).filter(transaction_type__type_name='sales')
             
             used_list=list()
             for use in used:
@@ -395,7 +395,7 @@ class MedicineUsedPieChartAPI(APIView):
             for quantities in used_list:
                 amount=amount+quantities
             institute_dict['institute']=institute.name
-            institute_dict['quantity']=int(amount)*newvar.unit_of_measure
+            institute_dict['quantity']=int(amount)
             newlist.append(institute_dict)
-            return Response(newlist)
+        return Response(newlist)
 
