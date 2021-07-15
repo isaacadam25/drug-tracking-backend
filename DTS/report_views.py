@@ -401,4 +401,22 @@ class MedicineUsedPieChartAPI(APIView):
 
 class MostUsedBatches(APIView):
     def get(self,request):
-        pass
+        medicine=Transaction.objects.filter(location_to=F('location_from')).values('batch').distinct()
+        batch_dict=dict()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        for batches in medicine:
+            stock=Transaction.objects.filter(location_to__reference_number=refno).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
+            quantity_list=list()
+            for seen in stock:
+                quantity_list.append(seen.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict[newvar.batch_number]=sumofquantities(quantity_list)
+        amount=0
+        for quantities in batch_dict.values():
+            amount=amount+quantities
+        content={'Received':int(amount)}
+        return Response(content)
