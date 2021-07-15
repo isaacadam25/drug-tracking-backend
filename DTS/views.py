@@ -188,7 +188,7 @@ class InstituteAPI(generics.ListCreateAPIView):
 
 class DistributionAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="government"))
+    queryset=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="government"))
     serializer_class=InstituteSerializer
 
 class LocationAPI(generics.ListCreateAPIView):

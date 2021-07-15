@@ -43,6 +43,15 @@ class Transaction(models.Model):
     def __str__(self):
         return f'SN: {self.reference_number}  || Type: {self.transaction_type}  ||  FROM: {self.location_from}  || TO: {self.location_to}'
 
+class ExpiredTable(models.Model):
+    organization=models.ForeignKey(Institute,on_delete=models.PROTECT)
+    destruction_date=models.DateField()
+    quantity_destroyed=models.IntegerField()
+    description=models.TextField(blank=True,null=True)
+    date_added=models.DateField(auto_now_add=True)
+    date_modified=models.DateField(auto_now=True)
+
+
 # class Order(models.Model):
 #     reference_number=models.IntegerField()
 #     supplier=models.ForeignKey(Supplier, models.PROTECT)

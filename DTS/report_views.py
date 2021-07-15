@@ -217,16 +217,16 @@ class GetBatchLostFromMSD(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         #transaction to
-        sent=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=False).filter(~Q(location_to=F('location_from')))
+        sent=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=True).filter(~Q(location_to=F('location_from')))
         #purchase_transaction
         lost=dict()
         for s in sent:
             lost_item=dict()
             received=Transaction.objects.get(corresponding_transaction=s.reference_number)
-            if received.quantity!=s.quantity:
-                lost_item['unit_quantity_lost'] = (received.quantity-s.quantity)*s.batch.unit_of_measure
+            if s.quantity != received.quantity:
+                lost_item['unit_quantity_lost'] = (s.quantity-received.quantity)*s.batch.unit_of_measure
                 #lost_item['sent_reference_number'] = 
-                lost_item['quantity_lost'] = (received.quantity-s.quantity)
+                lost_item['quantity_lost'] = (s.quantity-received.quantity)
                 lost_item['acceptor_fname'] = received.initiator.actual_user.first_name
                 lost_item['acceptor_lname'] = received.initiator.actual_user.last_name
                 lost_item['acceptor_organization'] = received.initiator.organization.name
@@ -262,6 +262,140 @@ class BatchTrack(APIView):
         all=Transaction.objects.filter(transaction_type__type_name='sales')
        #for al l
         latest=location.latest('date_added')
-        
         pass
-    
+
+class GetDrugsNeedDestroying(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request,refno):
+        institute=Institute.objects.get(reference_number=refno)
+        expiry_table=ExpiredTable.objects.filter(organization=institute).order_by('destruction_date')
+        if len(expiry_table) == 0:
+            medicine=Transaction.objects.filter(batch__expiry_date__lte=datetime.date.today()).values('batch').distinct()
+        else:
+            destroy_date=expiry_table[len(expiry_table)-1].destruction_date
+            medicine=Transaction.objects.filter(batch__expiry_date__lte=datetime.date.today()).filter(batch__expiry_date__gt=destroy_date).values('batch').distinct()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        batch_dict=dict()
+        for batches in medicine:
+            stock=Transaction.objects.filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
+            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=institute).filter(batch=batches['batch']).filter(transaction_type__type_name='sales')
+            quantity_list=list()
+            used_list=list()
+            for seen in stock:
+                quantity_list.append(seen.quantity)
+            for use in used:
+                used_list.append(use.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict[newvar.batch_number]=((sumofquantities(quantity_list)*newvar.unit_of_measure)-sumofquantities(used_list))/newvar.unit_of_measure
+        amount=0
+        for quantities in batch_dict.values():
+            amount=amount+quantities
+        content={'Expired':int(amount)}
+         #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(amount)
+
+
+class GetMostExpiredMedicines(APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self,request):
+        months_name=['January','February','March','April','May','June','July','August','September','October','November','December']
+        month_dig=[1,2,3,4,5,6,7,8,9,10,11,12,13]
+        year_now=datetime.datetime.now().year
+        medicine_name=MedicineDetails.objects.values('name').distinct()
+        batch_list=list()
+        batch=Transaction.objects.filter(batch__expiry_date__lte=datetime.date.today()).values('batch').distinct()
+        medicine_name_dict=dict()
+        for b in batch:
+            batch_list.append(b['batch'])
+        name_medicine=dict()
+        for name in medicine_name:
+            batch_quantity=0
+            transaction_batches=Batch.objects.filter(medicine_detail__name=name).filter(id__in=batch_list)
+            for t_batches in transaction_batches:
+                name_quantity=0
+                name_used=0
+                stock=Transaction.objects.filter(batch=t_batches).filter(transaction_type__type_name='purchase')
+                used=Transaction.objects.filter(is_accepted=True).filter(location_to=F('location_from')).filter(batch=t_batches).filter(transaction_type__type_name='sales')
+                
+                for seen in stock:
+                    name_quantity=name_quantity+seen.quantity
+                for use in used:
+                    name_used=name_used+use.quantity
+                newvar=Batch.objects.get(id=t_batches.id)
+                batch_quantity=batch_quantity+(name_quantity*newvar.unit_of_measure)-name_used/newvar.unit_of_measure
+                
+            name_medicine[name['name']]=batch_quantity
+
+        return Response(name_medicine)
+
+class GetExpireTrend(APIView):
+    def get(self,request):
+        months_name=['January','February','March','April','May','June','July','August','September','October','November','December']
+        month_dig=[1,2,3,4,5,6,7,8,9,10,11,12,13]
+        year_now=datetime.datetime.now().year
+        medicine_name=MedicineDetails.objects.values('name').distinct()
+        batch_list=list()
+        batch=Transaction.objects.filter(batch__expiry_date__lte=datetime.date.today()).values('batch').distinct()
+        medicine_name_dict=dict()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        for b in batch:
+            batch_list.append(b['batch'])
+        batch_dict=dict()
+        for name in medicine_name:
+            transaction_batches=Batch.objects.filter(medicine_detail__name=name).filter(id__in=batch_list)
+
+            for batches in transaction_batches:
+                med=Approval.objects.get(id=batches['batch'])
+            
+                stock=Transaction.objects.filter(batch=batches).filter(transaction_type__type_name='purchase')
+                used=Transaction.objects.filter(is_accepted=True).filter(location_to=F('location_from')).filter(batch=batches).filter(transaction_type__type_name='sales')
+                quantity_list=list()
+                used_list=list()
+                for seen in stock:
+                    quantity_list.append(seen.quantity)
+                for use in used:
+                    used_list.append(use.quantity)
+                newvar=Batch.objects.get(id=batches['batch'])
+                batch_dict[newvar.medicine_detail]=((sumofquantities(quantity_list)*newvar.unit_of_measure)-sumofquantities(used_list))/newvar.unit_of_measure
+        amount=0
+        for quantities in batch_dict.values():
+            amount=amount+quantities
+        content={'Expired':int(amount)}
+            #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(content)
+
+class MedicineUsedPieChartAPI(APIView):
+    def get(self,request,batchid):
+        institutes=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="government")).values('reference_number')
+        newlist=list()
+        for org in institutes:
+            institute_dict=dict()
+            institute=Institute.objects.get(reference_number=org['reference_number'])
+            def sumofquantities(arr):
+                sum=0
+                for values in arr:
+                    sum=sum+values
+                return sum
+            
+            used=Transaction.objects.filter(is_accepted=True).filter(location_from=institute).filter(location_to=institute).filter(batch=batchid).filter(transaction_type__type_name='sales')
+            
+            used_list=list()
+            for use in used:
+                used_list.append(use.quantity)
+            newvar=Batch.objects.get(id=batchid)
+            amount=0
+            for quantities in used_list:
+                amount=amount+quantities
+            institute_dict['institute']=institute.name
+            institute_dict['quantity']=int(amount)*newvar.unit_of_measure
+            newlist.append(institute_dict)
+            return Response(newlist)
+

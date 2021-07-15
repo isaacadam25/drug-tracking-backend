@@ -4,7 +4,7 @@ from .user_models import *
 from .transaction_models import *
 from .stock_models import *
 # Register your models here
-hubmodels=[Local,Institute,InstituteType]
+hubmodels=[Local,Institute,InstituteType,ExpiredTable]
 transactionmodels=[Transaction,TransactionType]
 stockmodels=[Batch,MedicineType,Approval,MedicineDetails]
 usermodels=[UserType,UserProfile]
