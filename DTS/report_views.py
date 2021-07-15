@@ -399,3 +399,6 @@ class MedicineUsedPieChartAPI(APIView):
             newlist.append(institute_dict)
         return Response(newlist)
 
+class MostUsedBatches(APIView):
+    def get(self,request):
+        
