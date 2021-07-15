@@ -401,4 +401,4 @@ class MedicineUsedPieChartAPI(APIView):
 
 class MostUsedBatches(APIView):
     def get(self,request):
-        
+        pass
