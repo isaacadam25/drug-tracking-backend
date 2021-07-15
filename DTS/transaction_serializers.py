@@ -46,3 +46,8 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model=TransactionType
         fields="__all__"
+
+class ExpiredTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ExpiredTable
+        fields="__all__"

@@ -264,6 +264,7 @@ class BatchTrack(APIView):
         latest=location.latest('date_added')
         pass
 
+#DestroyExpiredDrugs
 class GetDrugsNeedDestroying(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request,refno):
@@ -297,6 +298,11 @@ class GetDrugsNeedDestroying(APIView):
         content={'Expired':int(amount)}
          #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
         return Response(amount)
+
+class CreateExpireTableInstance(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=ExpiredTable.objects.all()
+    serializer_class=ExpiredTableSerializer
 
 
 class GetMostExpiredMedicines(APIView):
@@ -399,24 +405,28 @@ class MedicineUsedPieChartAPI(APIView):
             newlist.append(institute_dict)
         return Response(newlist)
 
-# class MostUsedBatches(APIView):
-#     def get(self,request):
-#         medicine=Transaction.objects.filter(location_to=F('location_from')).values('batch').distinct()
-#         batch_dict=dict()
-#         def sumofquantities(arr):
-#             sum=0
-#             for values in arr:
-#                 sum=sum+values
-#             return sum
-#         for batches in medicine:
-#             stock=Transaction.objects.filter(location_to__reference_number=refno).filter(batch=batches['batch']).filter(transaction_type__type_name='purchase')
-#             quantity_list=list()
-#             for seen in stock:
-#                 quantity_list.append(seen.quantity)
-#             newvar=Batch.objects.get(id=batches['batch'])
-#             batch_dict[newvar.batch_number]=sumofquantities(quantity_list)
-#         amount=0
-#         for quantities in batch_dict.values():
-#             amount=amount+quantities
-#         content={'Received':int(amount)}
-#         return Response(content)
+class MostUsedBatches(APIView):
+    def get(self,request):
+        medicine=Transaction.objects.filter(location_to=F('location_from')).values('batch').distinct()
+        
+        listnew=list()
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        for batches in medicine:
+            batch_dict=dict()
+            used=Transaction.objects.filter(batch=batches['batch']).filter(transaction_type__type_name='sales')
+            quantity_list=list()
+            for seen in used:
+                quantity_list.append(seen.quantity)
+            newvar=Batch.objects.get(id=batches['batch'])
+            batch_dict['id']=newvar.id
+            batch_dict['batch_number']=newvar.batch_number
+            batch_dict['quantity']=sumofquantities(quantity_list)
+            batch_dict['medicine_name']=newvar.medicine_detail.name
+            listnew.append(batch_dict)
+        
+
+        return Response(listnew)
