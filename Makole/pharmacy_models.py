@@ -32,6 +32,7 @@ class MakoleBatch(models.Model):
     quantity_measure=models.IntegerField()
     quantity_received=models.IntegerField()
     manufacturing_date=models.DateField()
+    used=models.IntegerField(default=0)
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)

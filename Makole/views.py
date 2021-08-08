@@ -246,6 +246,8 @@ class AcceptPrescriptionAPI(APIView):
         prescription=Prescription.objects.get(id=id)
         prescription.is_sold=True
         equivalent_batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number)
+        makole_batch=MakoleBatch.objects.get(batch_number=prescription.batch.batch_number)
+        makole_batch.used=makole_batch.used + prescription.quantity
         new_trans=DTStransaction.objects.create(initiator=dts_user,transaction_type=transaction_type,batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number),quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
         prescription.save()
         new_trans.save()
