@@ -20,6 +20,7 @@ urlpatterns = [
     path('stock/batches/declined/<int:id>',SingleBatchDeclinedAPI.as_view(),name="single-declined-batch"),
     path('stock/batches/unapproved',BatchUnapprovedAPI.as_view(),name="unapproved-batch"),
     path('stock/batches',BatchAPI.as_view(),name="batch"),
+    path('stock/batches/add',BatchAddAPI.as_view(),name="batch-add"),
     path('stock/expired-batches',GetExpiredBatches.as_view(),name="expired-batch"),
     path('stock/expired-batch/<int:id>',GetSingleExpiredBatch.as_view(),name="single-expired"),
     path('transactions/',TransactionAPI.as_view(),name="transactions"),
