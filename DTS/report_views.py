@@ -27,34 +27,44 @@ class TopApprovedMedicine(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         names=MedicineDetails.objects.values('name').distinct()
-        content=dict()
+        content_list=list()
         for name in names:
+            content=dict()
             count=Approval.objects.filter(status=True).filter(id__medicine_detail__name=name['name']).count()
-            content[name['name']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))
+            content['medicine']=name['name']
+            content['batches']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['batches'], reverse=True)
+        return Response(sort)
 
 class TopApprovedManufacturersAPI(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
+        content_list=list()
         for manufacturer in manufacturers:
+            content=dict()
             count=Approval.objects.filter(status=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
+            content['manufacturer']=manufacturer['manufacturer']
+            content['quantity']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['quantity'], reverse=True)
+        return Response(sort)   
 
 class TopDeclinedManufacturersAPI(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
+        content_list=list()
+        
         for manufacturer in manufacturers:
+            content=dict()
             count=Approval.objects.filter(is_declined=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
+            content['manufacturer']=manufacturer['manufacturer']
+            content['quantity']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['quantity'], reverse=True)
+        return Response(sort)    
     
 class GetRemainingMedicineHospital(APIView):
     permission_classes=(IsAuthenticated,)
@@ -342,24 +352,58 @@ class GetMostExpiredMedicines(APIView):
 
 class ExpireTrends(APIView):
     def get(self,request,year):
-        month_dig=ExpiredTable.objects.filter(destruction_date__year__=year).values_list('destruction_date__month')
-        j=0
-        i=len(month_dig)-1
+        def sumofquantities(arr):
+            sum=0
+            for values in arr:
+                sum=sum+values
+            return sum
+        month_dig=ExpiredTable.objects.filter(destruction_date__year=year).values('destruction_date__month').order_by('destruction_date').distinct()
+        month_list=list()
+        for b in month_dig:
+            month_list.append(b['destruction_date__month'])
+        j=100
+        i=len(month_list)-1
         drug='panadol'
-        while(True):
-            if (i==0):
-                batches=Transaction.objects.filter(batch__expiry_date__month__lte=month_dig[i]).filter(medicine_detail__name=drug).values('batch').distinct()
-                j=0
-            else:
-                batches=Transaction.objects.filter(batch__expiry_date__month__lte=month_dig[i]).filter(batch__expiry_date__month__gt=month_dig[i-1]).values('batch').distinct()
-                
+        data=list()
+        while(j!=0):
             
-            i=i-1
+            if (i==0):
+                batches=Approval.objects.filter(status=True).filter(id__expiry_date__month__lte=month_list[i]).filter(id__medicine_detail__name=drug).values('id').distinct()
+                j=0
+                # if not bool(batches):
+                #     continue
+            else:
+                batches=Approval.objects.filter(status=True).filter(id__expiry_date__month__lte=month_list[i]).filter(id__expiry_date__month__gt=month_list[i-1]).values('id').distinct()
+                i=i-1
+                # if not bool(batches):
+                #     continue
+            batch_quant=list()  
+            
+            
             for batch in batches:
-                med=Approval.objects.get(id=batches['batch'])
+                med=Batch.objects.get(id=batch['id'])
+                stock=Transaction.objects.filter(batch=med).filter(transaction_type__type_name='purchase')
+                used=Transaction.objects.filter(is_accepted=True).filter(location_to=F('location_from')).filter(batch=med).filter(transaction_type__type_name='sales')
+                quantity_list=list()
+                used_list=list()
+                for seen in stock:
+                    quantity_list.append(seen.quantity)
+                
+                for use in used:
+                    used_list.append(use.quantity)
+                # newvar=Batch.objects.get(id=batch['batch'])
+                # batch_quant.append(((sumofquantities(quantity_list)*med.unit_of_measure)-sumofquantities(used_list))/med.unit_of_measure)
+                batch_quant.append(((med.quantity_received*med.unit_of_measure)-sumofquantities(used_list))/med.unit_of_measure)
+            amount=0
+            for quantities in batch_quant:
+                amount=amount+quantities
+            data.append(amount)
+        content=[{'label':drug,'data':data}]
+            #sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
+        return Response(content)
 
 
-        pass
+
 class GetExpireTrend(APIView):
     def get(self,request):
         months_name=['January','February','March','April','May','June','July','August','September','October','November','December']

@@ -142,7 +142,8 @@ class BatchAddAPI(APIView):
         new_batch.save()
         serializer=BatchSerializer(new_batch)
         return Response(serializer.data,status=status.HTTP_201_CREATED)
-        
+    
+   
 
 
         # if serializer.is_valid():
@@ -150,6 +151,37 @@ class BatchAddAPI(APIView):
         #     return Response(serializer.data,
         #                     status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class BatchUpdateAPI(APIView):
+    def put(id,request):
+        all_manufacturer=list(MedicineDetails.objects.values_list('manufacturer',flat=True).distinct())
+        all_medicine_name=list(MedicineDetails.objects.values_list('name',flat=True).distinct())
+        # batch_no_1=serializer.data['batch_number']
+        manufacturer=request.data['manufacturer']
+        medicine_name=request.data['name']
+        batch_number=request.data['batch_number']
+        concentration=request.data['concentration']
+        quantity_received=request.data['quantity_received']
+        unit_of_measure=request.data['unit_of_measure']
+        production_date=request.data['production_date']
+        expiry_date=request.data['expiry_date']
+        medicine_type=MedicineType.objects.get(id=request.data['medicine_type'])
+        if medicine_name in all_medicine_name and manufacturer in all_manufacturer:
+            medicine_detail=MedicineDetails.objects.filter(name=medicine_name).filter(manufacturer=manufacturer)
+        else:
+            medicine_detail=MedicineDetails.objects.create(name=medicine_name,manufacturer=manufacturer) 
+            
+        old_batch=Batch.objects.get(id=id)
+        old_batch.medicine_detail=medicine_detail
+        old_batch.quantity_received=quantity_received
+        old_batch.batch_number=batch_number
+        old_batch.concentration=concentration
+        old_batch.unit_of_measure=unit_of_measure
+        old_batch.production_date=production_date
+        old_batch.expiry_date=expiry_date
+        old_batch.medicine_type=medicine_type
+        old_batch.save()
+        serializer=BatchSerializer(old_batch)
+        return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
 
 
 class BatchUnapprovedAPI(generics.ListAPIView):

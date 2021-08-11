@@ -19,6 +19,7 @@ urlpatterns=[
 
     path('batch/track/need-destroy/<str:refno>',GetDrugsNeedDestroying.as_view(),name="destroy-batches"),
     path('batch/track/most-destroyed',GetMostExpiredMedicines.as_view(),name="most-destroyed"),
+    path('batch/track/expire-trends/<int:year>',ExpireTrends.as_view(),name="expire-trends"),
     path('batch/track/piechard/medicine-used/<int:batchid>',MedicineUsedPieChartAPI.as_view(),name="medicine_used_pie"),
 
 
