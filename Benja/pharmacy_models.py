@@ -31,6 +31,7 @@ class BenjaBatch(models.Model):
     concentration=models.CharField(max_length=15)
     quantity_measure=models.IntegerField()
     quantity_received=models.IntegerField()
+    used=models.IntegerField(default=0)
     manufacturing_date=models.DateField()
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
