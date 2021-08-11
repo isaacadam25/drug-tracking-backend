@@ -23,8 +23,12 @@ class SendOrderAPI(APIView):
         order_to=Order.objects.get(id=id)
         profile=UserProfile.objects.get(actual_user=self.request.user)
         order_items=OrderedItem.objects.filter(order=order_to)
+
         for order_item in order_items:
             new_trans=Transaction.objects.create(initiator=profile,transaction_type=transaction_type,batch=order_item.batch,quantity=order_item.quantity,location_to=order_to.destination,location_from=location_from)
+            batch_used=Batch.objects.get(id=order_item.batch.id)
+            batch_used.used=batch_used.used+order_item.quantity
+            batch_used.save()
             new_trans.save()
         serializer=ItemSerializer(order_items,many=True)
         return Response(serializer.data)

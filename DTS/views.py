@@ -191,9 +191,9 @@ class UpdateSingleBatchAPI(generics.RetrieveUpdateAPIView):
     serializer_class=BatchApprovalSerializer
     lookup_url_kwarg = 'id'
 
-class SingleUnapprovedBatchAPI(generics.RetrieveAPIView):
+class SingleUnapprovedBatchAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Approval.objects.filter(status=False).filter(is_declined=False)
+    queryset=Batch.objects.all()
     serializer_class=BatchApprovalSerializer
     lookup_url_kwarg = 'id'
 

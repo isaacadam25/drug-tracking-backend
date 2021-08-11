@@ -339,6 +339,27 @@ class GetMostExpiredMedicines(APIView):
 
         return Response(name_medicine)
 
+
+class ExpireTrends(APIView):
+    def get(self,request,year):
+        month_dig=ExpiredTable.objects.filter(destruction_date__year__=year).values_list('destruction_date__month')
+        j=0
+        i=len(month_dig)-1
+        drug='panadol'
+        while(True):
+            if (i==0):
+                batches=Transaction.objects.filter(batch__expiry_date__month__lte=month_dig[i]).filter(medicine_detail__name=drug).values('batch').distinct()
+                j=0
+            else:
+                batches=Transaction.objects.filter(batch__expiry_date__month__lte=month_dig[i]).filter(batch__expiry_date__month__gt=month_dig[i-1]).values('batch').distinct()
+                
+            
+            i=i-1
+            for batch in batches:
+                med=Approval.objects.get(id=batches['batch'])
+
+
+        pass
 class GetExpireTrend(APIView):
     def get(self,request):
         months_name=['January','February','March','April','May','June','July','August','September','October','November','December']
