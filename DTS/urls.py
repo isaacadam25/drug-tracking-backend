@@ -12,6 +12,7 @@ urlpatterns = [
     path('stock/medicine-latest',LatestMedicinelView.as_view(),name="medicine-latest"),
     path('stock/batches/approval-status/<int:id>',UpdateSingleBatchAPI.as_view(),name="update-batch"),
     path('stock/batches/unapproved/<int:id>',SingleUnapprovedBatchAPI.as_view(),name="single-unapproved-batch"),
+    path('stock/batches/<int:id>',SingleEditDeleteBatchAPI.as_view(),name="single-batch"),
     path('stock/batches/approved',BatchApprovedAPI.as_view(),name="approved-batch"),
     path('stock/batches/available',ApprovedUnExpiredDrugs.as_view(),name="available-batch"),
 
