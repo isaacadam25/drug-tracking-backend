@@ -219,11 +219,12 @@ class GetBatchLostFromMSD(APIView):
         #transaction to
         sent=Transaction.objects.filter(transaction_type__type_name='sales').filter(is_accepted=True).filter(~Q(location_to=F('location_from')))
         #purchase_transaction
-        lost=dict()
+        lost=list()
         for s in sent:
             lost_item=dict()
             received=Transaction.objects.get(corresponding_transaction=s.reference_number)
             if s.quantity != received.quantity:
+                lost_item['reference_number']=received.corresponding_transaction
                 lost_item['unit_quantity_lost'] = (s.quantity-received.quantity)*s.batch.unit_of_measure
                 #lost_item['sent_reference_number'] = 
                 lost_item['quantity_lost'] = (s.quantity-received.quantity)
@@ -237,7 +238,7 @@ class GetBatchLostFromMSD(APIView):
                 lost_item['sender_organization']=s.initiator.organization.name
                 lost_item['sender_region']=s.initiator.organization.location.region
                 lost_item['sender_city']=s.initiator.organization.location.city
-                lost[s.reference_number]=lost_item
+                lost.append(lost_item)
 
         return Response(lost)
 

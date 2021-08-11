@@ -140,6 +140,22 @@ class Prescriptions(generics.ListCreateAPIView):
     queryset=Prescription.objects.all()
     serializer_class=PrescriptionSerializer
 
+class PrescriptionsPending(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.filter(is_sold=False)
+    serializer_class=PrescriptionSerializer
+class CreatePrescription(APIView):
+    def post(self,request):
+        serializer = PrescriptionSerializer(data=request.data)
+        appointment_id=request.data['appointment']
+        app=Appointment.objects.get(id=appointment_id)
+        app.status='Complete'
+        app.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetAppointmentPrescriptions(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -221,6 +237,27 @@ class SinglePrescriptionAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class=PrescriptionSerializer
 
 
+class BatchAddAPI(APIView):
+    def post(self,request,id):
+        serializer=BatchSerializer(data=request.data)
+        all_batch_no=Batch.objects.values('batch_number').distinct()
+        batch_no_1=serializer.data['batch_number']
+        if batch_no_1 in all_batch_no:
+            quantity_received=serializer.data['quantity_received']
+            existing_batch=Batch.objects.get(batch_number=batch_no_1)
+            existing_batch.quantity_received=existing_batch.quantity_received+quantity_received
+            existing_batch.save()
+            serializer=BatchSerializer(existing_batch)
+            Response(serializer.data,status=status.HTTP_201_CREATED)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+class GetAvailableDoctors(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=UserProfile.objects.filter(user_type__name='doctor')
+    serializer_class=UserProfileSerializer

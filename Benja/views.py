@@ -218,6 +218,39 @@ class SinglePrescriptionAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset=Prescription.objects.all()
     lookup_url_kwarg='id'
     serializer_class=PrescriptionSerializer
+class PrescriptionsPending(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.filter(is_sold=False)
+    serializer_class=PrescriptionSerializer
+class PrescriptionsPending(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Prescription.objects.filter(is_sold=False)
+    serializer_class=PrescriptionSerializer
+class CreatePrescription(APIView):
+    def post(self,request):
+        serializer = PrescriptionSerializer(data=request.data)
+        appointment_id=request.data['appointment']
+        app=Appointment.objects.get(id=appointment_id)
+        app.status='Complete'
+        app.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class CreatePrescription(APIView):
+    def post(self,request):
+        serializer = PrescriptionSerializer(data=request.data)
+        appointment_id=request.data['appointment']
+        app=Appointment.objects.get(id=appointment_id)
+        app.status='Complete'
+        app.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BatchAddAPI(APIView):
     def post(self,request,id):
@@ -239,5 +272,7 @@ class BatchAddAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
+class GetAvailableDoctors(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=UserProfile.objects.filter(user_type__name='doctor')
+    serializer_class=UserProfileSerializer
