@@ -27,34 +27,44 @@ class TopApprovedMedicine(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         names=MedicineDetails.objects.values('name').distinct()
-        content=dict()
+        content_list=list()
         for name in names:
+            content=dict()
             count=Approval.objects.filter(status=True).filter(id__medicine_detail__name=name['name']).count()
-            content[name['name']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))
+            content['medicine']=name['name']
+            content['batches']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['batches'], reverse=True)
+        return Response(sort)
 
 class TopApprovedManufacturersAPI(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
+        content_list=list()
         for manufacturer in manufacturers:
+            content=dict()
             count=Approval.objects.filter(status=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
+            content['manufacturer']=manufacturer['manufacturer']
+            content['quantity']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['quantity'], reverse=True)
+        return Response(sort)   
 
 class TopDeclinedManufacturersAPI(APIView):
     permission_classes=(IsAuthenticated,)
     def get(self,request):
         manufacturers=MedicineDetails.objects.values('manufacturer').distinct()
-        content=dict()
+        content_list=list()
+        
         for manufacturer in manufacturers:
+            content=dict()
             count=Approval.objects.filter(is_declined=True).filter(id__medicine_detail__manufacturer=manufacturer['manufacturer']).count()
-            content[manufacturer['manufacturer']]=count
-        sort=sorted(content.items(), key=lambda x:x[1], reverse=True)
-        return Response(dict(sort))   
+            content['manufacturer']=manufacturer['manufacturer']
+            content['quantity']=count
+            content_list.append(content)
+        sort=sorted(content_list, key=lambda x:x['quantity'], reverse=True)
+        return Response(sort)    
     
 class GetRemainingMedicineHospital(APIView):
     permission_classes=(IsAuthenticated,)
