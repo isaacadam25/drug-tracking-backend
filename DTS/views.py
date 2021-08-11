@@ -193,10 +193,15 @@ class UpdateSingleBatchAPI(generics.RetrieveUpdateAPIView):
 
 class SingleUnapprovedBatchAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Batch.objects.all()
+    queryset=Approval.objects.all()
     serializer_class=BatchApprovalSerializer
     lookup_url_kwarg = 'id'
 
+class SingleEditDeleteBatchAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Batch.objects.all()
+    serializer_class=BatchSerializer
+    lookup_url_kwarg = 'id'
 # class BatchapprovalStatusUpdate(generics.RetrieveUpdateAPIView):
 #     permission_classes = (IsAuthenticated,)
 #     queryset=Batch.objects.filter(approval.status==False)
