@@ -328,8 +328,9 @@ class GetMostExpiredMedicines(APIView):
         medicine_name_dict=dict()
         for b in batch:
             batch_list.append(b['batch'])
-        name_medicine=dict()
+        
         for name in medicine_name:
+            name_medicine=dict()
             batch_quantity=0
             transaction_batches=Batch.objects.filter(medicine_detail__name=name).filter(id__in=batch_list)
             for t_batches in transaction_batches:
@@ -345,6 +346,7 @@ class GetMostExpiredMedicines(APIView):
                 newvar=Batch.objects.get(id=t_batches.id)
                 batch_quantity=batch_quantity+(name_quantity*newvar.unit_of_measure)-name_used/newvar.unit_of_measure
                 
+            name_medicine[name['name']]=batch_quantity
             name_medicine[name['name']]=batch_quantity
 
         return Response(name_medicine)

@@ -91,6 +91,19 @@ class AcceptAPI(generics.RetrieveUpdateAPIView):
     serializer_class=TransactionSerializer
     lookup_url_kwarg = 'id'
 
+class ManufacturerAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Manufacturer.objects.all()
+    serializer_class=ManufacturerSerializer
+    lookup_url_kwarg = 'id'
+
+class SingleManufacturerAPI(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Manufacturer.objects.all()
+    serializer_class=ManufacturerSerializer
+
+
+
 
 class GetExpiredBatches(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -118,7 +131,7 @@ class BatchAPI(generics.ListCreateAPIView):
 
 class BatchAddAPI(APIView):
     def post(self,request):
-        all_manufacturer=list(MedicineDetails.objects.values_list('manufacturer',flat=True).distinct())
+        all_manufacturer=list(MedicineDetails.objects.values_list('manufacturer__name',flat=True).distinct())
         all_medicine_name=list(MedicineDetails.objects.values_list('name',flat=True).distinct())
         # batch_no_1=serializer.data['batch_number']
         manufacturer=request.data['manufacturer']
@@ -151,6 +164,7 @@ class BatchAddAPI(APIView):
         #     return Response(serializer.data,
         #                     status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class BatchUpdateAPI(APIView):
     def put(id,request):
         all_manufacturer=list(MedicineDetails.objects.values_list('manufacturer',flat=True).distinct())
