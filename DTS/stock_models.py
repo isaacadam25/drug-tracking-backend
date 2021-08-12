@@ -25,6 +25,7 @@ from .user_models import UserProfile as User
 class Manufacturer(models.Model):
     name=models.CharField(max_length=30)
     nation=models.CharField(max_length=30)
+    is_active=models.BooleanField(default=True)
     description=models.TextField(blank=True,null=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True) 

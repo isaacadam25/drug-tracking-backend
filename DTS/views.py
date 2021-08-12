@@ -91,16 +91,28 @@ class AcceptAPI(generics.RetrieveUpdateAPIView):
     serializer_class=TransactionSerializer
     lookup_url_kwarg = 'id'
 
-class ManufacturerAPI(generics.RetrieveUpdateDestroyAPIView):
+class SingleManufacturerAPI(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Manufacturer.objects.all()
     serializer_class=ManufacturerSerializer
     lookup_url_kwarg = 'id'
 
-class SingleManufacturerAPI(generics.ListCreateAPIView):
+class ActiveManufacturerAPI(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Manufacturer.objects.filter(is_active=True)
+    serializer_class=ManufacturerSerializer
+
+class ManufacturerAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Manufacturer.objects.all()
     serializer_class=ManufacturerSerializer
+
+class SuspendedManufacturerAPI(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Manufacturer.objects.filter(is_active=False)
+    serializer_class=ManufacturerSerializer
+
+
 
 
 
