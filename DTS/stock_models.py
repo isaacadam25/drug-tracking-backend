@@ -21,11 +21,19 @@ from .user_models import UserProfile as User
 #     date_modified=models.DateTimeField(auto_now=True)
 #     def __str__(self):
 #         return f'{self.brand_name}'
-    
+
+class Manufacturer(models.Model):
+    name=models.CharField(max_length=30)
+    nation=models.CharField(max_length=30)
+    description=models.TextField(blank=True,null=True)
+    date_added=models.DateTimeField(auto_now_add=True)
+    date_modified=models.DateTimeField(auto_now=True) 
+    def __str__(self):
+        return f'{self.name}'
 
 class MedicineDetails(models.Model):
     name=models.CharField(max_length=30)
-    manufacturer=models.CharField(max_length=30)
+    manufacturer=models.ForeignKey(Manufacturer,on_delete=models.CASCADE)
     description=models.TextField(blank=True,null=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)

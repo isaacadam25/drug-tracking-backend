@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .stock_models import Approval,Batch,MedicineDetails,MedicineType
+from .stock_models import Approval,Batch, Manufacturer,MedicineDetails,MedicineType
 from .user_models import *
 
 # class MedicineBrandSerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class BatchSerializer(serializers.ModelSerializer):
     approval_status=serializers.CharField(source="approval.status",read_only=True)
     type_name=serializers.CharField(source="medicine_type.type_name",read_only=True)
     medicine_name=serializers.CharField(source="medicine_detail.name",read_only=True)
-    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer",read_only=True)
+    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer.name",read_only=True)
     
     class Meta:
         model=Batch
@@ -22,7 +22,7 @@ class AcceptBatchSerializer(serializers.ModelSerializer):
     approval_status=serializers.CharField(source="approval.status",read_only=True)
     type_name=serializers.CharField(source="medicine_type.type_name",read_only=True)
     medicine_name=serializers.CharField(source="medicine_detail.name",read_only=True)
-    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer",read_only=True)
+    medicine_manufacturer=serializers.CharField(source="medicine_detail.manufacturer.name",read_only=True)
     
     class Meta:
         model=Batch
@@ -36,7 +36,7 @@ class BatchApprovalSerializer(serializers.ModelSerializer):
     expiry_date=serializers.CharField(source="id.expiry_date",read_only=True)
     production_date=serializers.CharField(source="id.production_date",read_only=True)
     concentration=serializers.CharField(source="id.concentration",read_only=True)
-    manufacturer=serializers.CharField(source="id.medicine_detail.manufacturer",read_only=True)
+    manufacturer=serializers.CharField(source="id.medicine_detail.manufacturer.name",read_only=True)
     drug_name=serializers.CharField(source="id.medicine_detail.name",read_only=True)
     type=serializers.CharField(source="id.medicine_type.type_name",read_only=True)
     medicine_type=serializers.CharField(source="id.medicine_type.type_name",read_only=True)
@@ -47,6 +47,11 @@ class BatchApprovalSerializer(serializers.ModelSerializer):
 class MedicineInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model=MedicineDetails
+        fields='__all__'
+
+class ManufacturerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Manufacturer
         fields='__all__'
 
 
