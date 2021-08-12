@@ -23,7 +23,7 @@ from .user_models import UserProfile as User
 #         return f'{self.brand_name}'
 
 class Manufacturer(models.Model):
-    name=models.CharField(max_length=30)
+    name=models.CharField(max_length=30,unique=True)
     nation=models.CharField(max_length=30)
     is_active=models.BooleanField(default=True)
     description=models.TextField(blank=True,null=True)

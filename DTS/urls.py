@@ -16,8 +16,8 @@ urlpatterns = [
     path('stock/batches/approved',BatchApprovedAPI.as_view(),name="approved-batch"),
     path('stock/batches/available',ApprovedUnExpiredDrugs.as_view(),name="available-batch"),
     path('stock/batches/manufacturer',ManufacturerAPI.as_view(),name="get-create-company"),
-    path('stock/batches/manufacturer/active',SuspendedManufacturerAPI.as_view(),name="get-suspended-company"),
-    path('stock/batches/manufacturer/suspended',ActiveManufacturerAPI.as_view(),name="get-active-company"),
+    path('stock/batches/manufacturer/suspended',SuspendedManufacturerAPI.as_view(),name="get-suspended-company"),
+    path('stock/batches/manufacturer/active',ActiveManufacturerAPI.as_view(),name="get-active-company"),
     path('stock/batches/manufacturer/<int:id>',SingleManufacturerAPI.as_view(),name="get-put-company"),
 
     path('stock/batches/approved/<int:id>',SingleBatchApprovedAPI.as_view(),name="single-approved-batch"),
