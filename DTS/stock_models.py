@@ -53,7 +53,7 @@ class MedicineType(models.Model):
 
 class Batch(models.Model):
     medicine_detail=models.ForeignKey(MedicineDetails,on_delete=DO_NOTHING)
-    batch_number=models.IntegerField(unique=True,max_length=20)
+    batch_number=models.CharField(unique=True,max_length=20)
     used=models.IntegerField(default=0)
     quantity_received=models.IntegerField()
     unit_of_measure = models.IntegerField(default=100)
