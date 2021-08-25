@@ -43,7 +43,9 @@ urlpatterns = [
     path('hub/institute/',InstituteAPI.as_view(),name="institute"),
     path('hub/institute/name/<str:refno>',GetHospitalName.as_view(),name="institute-name"),
     path('hub/destinations/',DistributionAPI.as_view(),name="institutes"),
+    path('hub/destinations/<int:id>',SingleDistributionAPI.as_view(),name="single-institutes"),
     path('hub/location',LocationAPI.as_view(),name="location"),
     path('hospital/pharmacy/incoming/<str:refno>',getAllIncomingTransactions.as_view(),name="incoming-order"),
+    path('hospital/pharmacy/accepted/order/<str:refno>',getAllHospitalTransactions.as_view(),name="all-order"),
 
 ]

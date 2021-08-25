@@ -23,6 +23,7 @@ from DTS.transaction_serializers import TransactionSerializer as DTSTransactionS
 from Makole.hospital_serializers import *
 from Makole.user_serializers import UserProfileSerializer,HospitalRoomsSerializer
 from Makole.sales_serializers import *
+import datetime
 # Create your views here.
 #USER APIS
 class UsersAPI(generics.ListCreateAPIView):
@@ -81,6 +82,11 @@ class BatchAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Batch.objects.all()
     serializer_class=BatchSerializer
+class SingleBatchAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Batch.objects.all()
+    serializer_class=BatchSerializer
+    lookup_url_kwarg='id'
 
 class CreateBatchAPI(APIView):
     def patch(self,request):
@@ -125,6 +131,16 @@ class SupplierAPI(generics.ListCreateAPIView):
 class PatientAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Patient.objects.all()
+    serializer_class=PatientSerializer
+class SinglePatientAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Patient.objects.all()
+    serializer_class=PatientSerializer
+    lookup_url_kwarg='id'
+
+class PatientTodayAPI(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Patient.objects.filter(date_added__month=datetime.date.today().month).filter(date_added__year=datetime.date.today().year).filter(date_added__day=datetime.date.today().day)
     serializer_class=PatientSerializer
 class PendingAppointmentAPI(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -247,9 +263,10 @@ class AcceptPrescriptionAPI(APIView):
         prescription.is_sold=True
         equivalent_batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number)
         makole_batch=MakoleBatch.objects.get(batch_number=prescription.batch.batch_number)
-        makole_batch.used=makole_batch.used + prescription.quantity
+        makole_batch.used= makole_batch.used + (prescription.quantity)
         new_trans=DTStransaction.objects.create(initiator=dts_user,transaction_type=transaction_type,batch=DTSBatch.objects.get(batch_number=prescription.batch.batch_number),quantity=prescription.quantity,location_to=hospital_actual,location_from=hospital_actual,is_accepted=True)
         prescription.save()
+        makole_batch.save()
         new_trans.save()
         serializer=PrescriptionSerializer(prescription)
         return Response(serializer.data)
@@ -286,4 +303,37 @@ class BatchAddAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+####################### Report Views #########################################################
 
+class TotalSoldAPI(APIView):
+    permission_classes=(AllowAny,)
+    def get(self, request):
+        all_batches=Batch.objects.all()
+        amount=0
+        for batch in all_batches:
+            amount+=batch.used
+        content={'amount':amount}
+        return Response(content)
+
+class TotalReceivedAPI(APIView):
+    permission_classes=(AllowAny,)
+    def get(self, request):
+        all_batches=Batch.objects.all()
+        amount=0
+        for batch in all_batches:
+            amount+=(batch.quantity_received*batch.quantity_measure)
+        content={'amount':amount}
+        return Response(content)
+
+class TotalAvailableAPI(APIView):
+    permission_classes=(AllowAny,)
+    def get(self, request):
+        all_batches=Batch.objects.all()
+        amount_received=0
+        amount_used=0
+        for batch in all_batches:
+            amount_used+=batch.used
+            amount_received+=(batch.quantity_received*batch.quantity_measure)
+        amount=amount_received-amount_used
+        content={'amount':amount}
+        return Response(content)

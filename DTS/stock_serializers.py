@@ -30,9 +30,10 @@ class AcceptBatchSerializer(serializers.ModelSerializer):
 
 
 class BatchApprovalSerializer(serializers.ModelSerializer):
-    batch_number=serializers.IntegerField(source="id.batch_number",read_only=True)
+    batch_number=serializers.CharField(source="id.batch_number",read_only=True)
     unit_measure=serializers.IntegerField(source="id.unit_of_measure",read_only=True)
     quantity_received=serializers.IntegerField(source="id.quantity_received",read_only=True)
+    used=serializers.IntegerField(source="id.used",read_only=True)
     expiry_date=serializers.CharField(source="id.expiry_date",read_only=True)
     production_date=serializers.CharField(source="id.production_date",read_only=True)
     concentration=serializers.CharField(source="id.concentration",read_only=True)
@@ -40,6 +41,7 @@ class BatchApprovalSerializer(serializers.ModelSerializer):
     drug_name=serializers.CharField(source="id.medicine_detail.name",read_only=True)
     type=serializers.CharField(source="id.medicine_type.type_name",read_only=True)
     medicine_type=serializers.CharField(source="id.medicine_type.type_name",read_only=True)
+    reg_date=serializers.CharField(source="id.date_added",read_only=True)
     class Meta:
         model=Approval
         fields='__all__'

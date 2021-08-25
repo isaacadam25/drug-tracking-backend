@@ -64,11 +64,12 @@ class Batch(models.Model):
     medicine_type=models.ForeignKey(MedicineType, on_delete=models.SET_NULL,null=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)
-    def save(self,*args,**kwargs):
-        super(Batch,self).save(*args,**kwargs)
-        approve=Approval()
-        approve.id=self
-        approve.save()
+    # def save(self,*args,**kwargs):
+    #     super(Batch,self).save(*args,**kwargs)
+    #     if not bool(Approval.objects.get(id=self.id)):
+    #         approve=Approval()
+    #         approve.id=self
+    #         approve.save()
 
     def __str__(self):
         return f'{self.batch_number} || {self.medicine_detail}'

@@ -146,7 +146,7 @@ class BatchAddAPI(APIView):
         all_manufacturer=list(MedicineDetails.objects.values_list('manufacturer__name',flat=True).distinct())
         all_medicine_name=list(MedicineDetails.objects.values_list('name',flat=True).distinct())
         # batch_no_1=serializer.data['batch_number']
-        manufacturer=request.data['manufacturer']
+        man=request.data['manufacturer']
         medicine_name=request.data['name']
         batch_number=request.data['batch_number']
         concentration=request.data['concentration']
@@ -154,17 +154,23 @@ class BatchAddAPI(APIView):
         unit_of_measure=request.data['unit_of_measure']
         production_date=request.data['production_date']
         expiry_date=request.data['expiry_date']
+        description=request.data['description']
+        manufacturer=Manufacturer.objects.get(id=man)
+
         medicine_type=MedicineType.objects.get(id=request.data['medicine_type'])
         if medicine_name in all_medicine_name and manufacturer in all_manufacturer:
             existing_medicine_detail=MedicineDetails.objects.filter(name=medicine_name).filter(manufacturer=manufacturer)
-            new_batch=Batch.objects.create(medicine_detail=existing_medicine_detail[0],batch_number=batch_number,concentration=concentration,quantity_received=quantity_received,unit_of_measure=unit_of_measure,production_date=production_date,expiry_date=expiry_date,medicine_type=medicine_type)
+            new_batch=Batch.objects.create(description=description,medicine_detail=existing_medicine_detail[0],batch_number=batch_number,concentration=concentration,quantity_received=quantity_received,unit_of_measure=unit_of_measure,production_date=production_date,expiry_date=expiry_date,medicine_type=medicine_type)
 
         else:
             new_medicine_detail=MedicineDetails.objects.create(name=medicine_name,manufacturer=manufacturer) 
-            new_batch=Batch.objects.create(medicine_detail=new_medicine_detail,batch_number=batch_number,concentration=concentration,quantity_received=quantity_received,unit_of_measure=unit_of_measure,production_date=production_date,expiry_date=expiry_date,medicine_type=medicine_type)
+            new_batch=Batch.objects.create(description=description,medicine_detail=new_medicine_detail,batch_number=batch_number,concentration=concentration,quantity_received=quantity_received,unit_of_measure=unit_of_measure,production_date=production_date,expiry_date=expiry_date,medicine_type=medicine_type)
 
             
         new_batch.save()
+        approve=Approval()
+        approve.id=new_batch
+        approve.save()
         serializer=BatchSerializer(new_batch)
         return Response(serializer.data,status=status.HTTP_201_CREATED)
     
@@ -229,7 +235,7 @@ class SingleBatchDeclinedAPI(generics.RetrieveAPIView):
 
 class BatchApprovedAPI(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset=Approval.objects.filter(status=True)
+    queryset=Approval.objects.filter(status=True).order_by("-date_approved")
     serializer_class=BatchApprovalSerializer
 
 class ApprovedUnExpiredDrugs(generics.ListCreateAPIView):
@@ -280,7 +286,8 @@ class LatestMedicinelView(generics.RetrieveAPIView):
         return self.queryset.latest('date_added')
 #############################HUB_VIEWS############################
 class InstituteAPI(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     queryset=Institute.objects.all()
     serializer_class=InstituteSerializer
 
@@ -288,6 +295,12 @@ class DistributionAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="government"))
     serializer_class=InstituteSerializer
+
+class SingleDistributionAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=Institute.objects.filter(~Q(institute_type__name="tmda")).filter(~Q(institute_type__name="moh")).filter(~Q(institute_type__name="msd")).filter(~Q(institute_type__name="government"))
+    serializer_class=InstituteSerializer
+    lookup_url_kwarg = 'id'
 
 class LocationAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
@@ -368,7 +381,16 @@ class getAllIncomingTransactions(APIView):
     def get(self,request,refno):
         hospital_actual=Institute.objects.get(reference_number=refno)
         # transaction_type=Transaction.objects.
-        transactions=Transaction.objects.filter(location_to=hospital_actual).filter(transaction_type__type_name='sales').filter(is_accepted=False)
+        transactions=Transaction.objects.filter(location_to=hospital_actual).filter(location_from__name="msd").filter(transaction_type__type_name='sales').filter(is_accepted=False)
+        serializer=TransactionSerializer(transactions,many=True)
+        return Response(serializer.data)
+
+class getAllHospitalTransactions(APIView):
+    permission_classes=(AllowAny,)
+    def get(self,request,refno):
+        hospital_actual=Institute.objects.get(reference_number=refno)
+        # transaction_type=Transaction.objects.
+        transactions=Transaction.objects.filter(location_to=hospital_actual).filter(location_from__name='msd').filter(transaction_type__type_name='purchase')
         serializer=TransactionSerializer(transactions,many=True)
         return Response(serializer.data)
 
@@ -377,3 +399,4 @@ class GetHospitalName(APIView):
         institution=Institute.objects.get(reference_number=refno)
         content={'id':institution.id,'name':institution.name}
         return Response(content)
+

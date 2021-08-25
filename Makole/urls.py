@@ -8,7 +8,11 @@ urlpatterns = [
     path('userlist/doctors/',GetAvailableDoctors.as_view(),name="get-doctors"),
     path('pharmacy/medicine',MedicineAPI.as_view(),name="medicine"),
     path('pharmacy/batches',BatchAPI.as_view(),name="batch"),
+    path('pharmacy/batches/<int:id>',SingleBatchAPI.as_view(),name="single-batch"),
     path('pharmacy/batches/create',CreateBatchAPI.as_view(),name="create-batch"),
+    path('pharmacy/batches/total/received',TotalReceivedAPI.as_view(),name="total-received-batch"),
+    path('pharmacy/batches/total/available',TotalAvailableAPI.as_view(),name="total-available-batch"),
+    path('pharmacy/batches/total/sold',TotalSoldAPI.as_view(),name="total-sold-batch"),
 
     path('pharmacy/suppliers',SupplierAPI.as_view(),name="suppliers"),
     path('sales/orders',OrderAPI.as_view(),name="orders"),
@@ -21,6 +25,8 @@ urlpatterns = [
     path('hospital/diagnoses/<int:id>',SingleDiagnosesAPI.as_view(),name="single-diagnoses"),
 
     path('hospital/patients/',PatientAPI.as_view(),name="patients"),
+    path('hospital/patients/<int:id>',SinglePatientAPI.as_view(),name="single-patient"),
+    path('hospital/patients/today',PatientTodayAPI.as_view(),name="patients-today"),
     path('hospital/patient-type',PatientTypeAPI.as_view(),name="patient-type"),
     path('hospital/appointments/',AppointmentAPI.as_view(),name="appointments"),
     path('hospital/appointments/pending',PendingAppointmentAPI.as_view(),name="pending-appointment"),

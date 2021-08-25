@@ -23,16 +23,16 @@ class MedicineBrand(models.Model):
     
 
 class MakoleBatch(models.Model):
-    batch_number=models.IntegerField(unique=True)
+    batch_number=models.CharField(unique=True,max_length=10)
     medicine_brand=models.CharField(max_length=50)
     medicine_name=models.CharField(max_length=30)
-    measure_options=(('ml','ML'),('cp','CP'),('tb','TB'))
+    measure_options=(('ml','ML','liquid'),('cp','CP','capsule'),('tb','TB','tablet'))
     unit_of_measure = models.CharField(max_length=10, default='tablet',blank=True)
     concentration=models.CharField(max_length=15)
     quantity_measure=models.IntegerField()
     quantity_received=models.IntegerField()
     manufacturing_date=models.DateField()
-    used=models.IntegerField(default=0)
+    used=models.FloatField(default=0)
     description=models.TextField(null=True, blank=True)
     date_added=models.DateTimeField(auto_now_add=True)
     date_modified=models.DateTimeField(auto_now=True)

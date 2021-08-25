@@ -45,8 +45,15 @@ class Transaction(models.Model):
 
 class ExpiredTable(models.Model):
     organization=models.ForeignKey(Institute,on_delete=models.PROTECT)
-    destruction_date=models.DateField()
+    destruction_date=models.DateField(auto_now_add=True)
     quantity_destroyed=models.IntegerField()
+    description=models.TextField(blank=True,null=True)
+    date_modified=models.DateField(auto_now=True)
+
+class DrugTrackTable(models.Model):
+    destroyed=models.ForeignKey(ExpiredTable,on_delete=models.DO_NOTHING)
+    quantity_destroyed=models.IntegerField()
+    destroyer=models.CharField(max_length=100)
     description=models.TextField(blank=True,null=True)
     date_added=models.DateField(auto_now_add=True)
     date_modified=models.DateField(auto_now=True)

@@ -53,10 +53,10 @@ class RestrictedUserSerializer(serializers.ModelSerializer):
     first_name=serializers.CharField(source="actual_user.first_name",read_only=True)
     last_name=serializers.CharField(source="actual_user.last_name",read_only=True)
     is_active=serializers.BooleanField(source="actual_user.is_active",read_only=True)
-    location_zone=serializers.CharField(source="location.zone",read_only=True)
-    location_region=serializers.CharField(source="location.region",read_only=True)
-    location_city=serializers.CharField(source="location.city",read_only=True)
-    location_area=serializers.CharField(source="location.area",read_only=True)      
+    location_zone=serializers.CharField(source="organization.location.zone",read_only=True)
+    location_region=serializers.CharField(source="organization.location.region",read_only=True)
+    location_city=serializers.CharField(source="organization.location.city",read_only=True)
+    location_area=serializers.CharField(source="organization.location.area",read_only=True)      
     class Meta:
         model=UserProfile
-        fields=['id']
+        fields="__all__"

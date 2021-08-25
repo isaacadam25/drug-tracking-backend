@@ -9,6 +9,7 @@ from DTS.hub_models import Institute
 from DTS.transaction_models import Transaction, TransactionType
 from rest_framework.permissions import IsAuthenticated, AllowAny
 import datetime
+from rest_framework import status
 
 # Create your views here.
 class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -27,7 +28,7 @@ class SendOrderAPI(APIView):
         for order_item in order_items:
             new_trans=Transaction.objects.create(initiator=profile,transaction_type=transaction_type,batch=order_item.batch,quantity=order_item.quantity,location_to=order_to.destination,location_from=location_from)
             batch_used=Batch.objects.get(id=order_item.batch.id)
-            batch_used.used=batch_used.used+order_item.quantity
+            batch_used.used+=order_item.quantity
             batch_used.save()
             new_trans.save()
         serializer=ItemSerializer(order_items,many=True)
@@ -39,7 +40,14 @@ class MedicineAPI(generics.ListCreateAPIView):
     queryset=Medicine.objects.all()
     serializer_class=MedicineSerializer
 
-
+class CreateOrderAPI(APIView):
+    def post(self,request):
+        destination=request.data['destination']
+        d=Institute.objects.get(name=destination)
+        new_order=Order.objects.create(destination=d)
+        new_order.save()
+        serializer=OrderSerializer(new_order)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
 class CreateViewOrdersAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=Order.objects.all()
@@ -67,6 +75,12 @@ class OrderItemAPI(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset=OrderedItem.objects.all()
     serializer_class=ItemSerializer
+
+class SingleOrderItemAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset=OrderedItem.objects.all()
+    serializer_class=ItemSerializer
+    lookup_url_kwarg='id'
 
 class SingleOrderAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
@@ -266,5 +280,41 @@ class GetDistributedMedicines(APIView):
     
     
 
+class GetMedicineReceivedTrends(APIView):
+    permission_classes = (IsAuthenticated,)
+    # permission_classes = (AllowAny,)
 
+    def get(self,request,year):
+        months=[1,2,3,4,5,6,7,8,9,10,11,12]
+        quantity_list=list()
+        for month in months:
+            quantity_dict=dict()
+            meds=Approval.objects.filter(date_approved__month=month).filter(status=True).filter(date_approved__year=year)
+            quantity_month=0
+            for med in meds:
+                quantity_month=quantity_month+med.id.quantity_received
+            switcher = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            quantity_dict['month_added']=switcher[month-1]
+            quantity_dict['quantity']=quantity_month
+            quantity_list.append(quantity_dict)
+        return Response(quantity_list)
 
+class GetMedicineUsedTrends(APIView):
+    # permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
+
+    def get(self,request,year):
+        months=[1,2,3,4,5,6,7,8,9,10,11,12]
+        quantity_list=list()
+        for month in months:
+            msd=Institute.objects.get(name="msd")
+            transactions=Transaction.objects.filter(transaction_type__type_name='sales').filter(location_from=msd.id).filter(date_added__month=month).filter(date_added__year=year)
+            quantity_dict=dict()
+            quantity_month=0
+            for t in transactions:
+                quantity_month=quantity_month+t.quantity
+            switcher = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            quantity_dict['month_added']=switcher[month-1]
+            quantity_dict['quantity']=quantity_month
+            quantity_list.append(quantity_dict)
+        return Response(quantity_list)

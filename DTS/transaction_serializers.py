@@ -4,7 +4,7 @@ from .transaction_models import *
 #from Hospital.serializers import PatientSerializer
 
 class TransactionSerializer(serializers.ModelSerializer):
-    batch_number=serializers.IntegerField(source="batch.batch_number",read_only=True)
+    batch_number=serializers.CharField(source="batch.batch_number",read_only=True)
     transaction_type_name=serializers.CharField(source="transaction_type.type_name",read_only=True)
     destination_number=serializers.CharField(source="location_to.reference_number",read_only=True)
     destination_name=serializers.CharField(source="location_to.name",read_only=True)
@@ -50,4 +50,14 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
 class ExpiredTableSerializer(serializers.ModelSerializer):
     class Meta:
         model=ExpiredTable
+        fields="__all__"
+
+class DrugTrackTableSerializer(serializers.ModelSerializer):
+    location_name=serializers.CharField(source="destroyed.organization.name",read_only=True)
+    location_refno=serializers.CharField(source="destroyed.organization.reference_number",read_only=True)
+    quantity_need=serializers.CharField(source="destroyed.quantity_destroyed",read_only=True)
+    destruction_date=serializers.CharField(source="destroyed.destruction_date",read_only=True)
+    
+    class Meta:
+        model=DrugTrackTable
         fields="__all__"

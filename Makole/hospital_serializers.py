@@ -44,7 +44,7 @@ class PrescriptionSerializer(serializers.ModelSerializer):
     patient_lastname=serializers.CharField(source="appointment.patient.first_name",read_only=True)
     # patient_number=serializers.CharField(source="appointment.patient.serial_number",read_only=True)
     patient_type=serializers.CharField(source="appointment.patient.patient_type.name",read_only=True)
-    medicine_name=serializers.CharField(source="batch.medicine_name",read_only=True)
+    medicine_brand=serializers.CharField(source="batch.medicine_name",read_only=True)
     medicine_name=serializers.CharField(source="batch.medicine_brand",read_only=True)
     class Meta:
         model=Prescription
